@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("usuarios")
+}
+
+enum TamanoRamo {
+  Pequeno  @map("Pequeño")
+  Mediano
+  Grande
+  Jumbo
+}
+
+model Ramo {
+  id             Int         @id @default(autoincrement())
+  nombre         String      @db.VarChar(255)
+  tamano         TamanoRamo
+  fotoUrl        String?     @map("foto_url") @db.VarChar(500)
+  precioVenta    Decimal     @db.Decimal(10, 2)
+  costoCalculado Decimal     @default(0) @map("costo_calculado") @db.Decimal(10, 2)
+  stock          Int         @default(0)
+  activo         Boolean     @default(true)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  recetas      Receta[]
+  pedidoItems  PedidoItem[]
+
+  @@map("ramos")
+}
+
+model MateriaPrima {
+  id                 Int      @id @default(autoincrement())
+  nombre             String   @db.VarChar(255)
+  unidad             String   @db.VarChar(50)
+  stockActual        Decimal  @default(0) @map("stock_actual") @db.Decimal(10, 2)
+  costoUnitario      Decimal  @db.Decimal(10, 2)
+  stockMinimoAlerta  Int      @default(5) @map("stock_minimo_alerta")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  recetas Receta[]
+
+  @@map("materias_primas")
+}
+
+model Receta {
+  id              Int      @id @default(autoincrement())
+  ramoId          Int      @map("ramo_id")
+  materiaPrimaId Int      @map("materia_prima_id")
+  cantidad       Decimal  @db.Decimal(10, 3)
+
+  ramo          Ramo          @relation(fields: [ramoId], references: [id], onDelete: Cascade)
+  materiaPrima  MateriaPrima  @relation(fields: [materiaPrimaId], references: [id], onDelete: Cascade)
+
+  @@unique([ramoId, materiaPrimaId])
+  @@map("recetas")
+}
+
+enum EstadoPedido {
+  Pendiente    @map("Pendiente")
+  EnPreparacion @map("En preparación")
+  Entregado    @map("Entregado")
+  Pagado       @map("Pagado")
+}
+
+model Pedido {
+  id              Int          @id @default(autoincrement())
+  clienteNombre   String       @map("cliente_nombre") @db.VarChar(255)
+  clienteWhatsapp String       @map("cliente_whatsapp") @db.VarChar(20)
+  estado          EstadoPedido @default(Pendiente)
+  metodoPago       String?      @map("metodo_pago") @db.VarChar(100)
+  montoTotal      Decimal      @map("monto_total") @db.Decimal(10, 2)
+  fechaEntrega    DateTime?    @map("fecha_entrega")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  pedidoItems PedidoItem[]
+
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id             Int     @id @default(autoincrement())
+  pedidoId       Int     @map("pedido_id")
+  ramoId         Int     @map("ramo_id")
+  cantidad       Int
+  precioUnitario Decimal @map("precio_unitario") @db.Decimal(10, 2)
+
+  pedido Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  ramo   Ramo   @relation(fields: [ramoId], references: [id])
+
+  @@map("pedido_items")
+}
