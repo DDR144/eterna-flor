@@ -27,90 +27,149 @@ export default async function CatalogoPage({
   const WHATSAPP_NUMERO = '930190189';
   const MENSAJE_BASE = 'Hola, me interesa uno de los Ramos';
 
+  const TAMANOS = ['Pequeño', 'Mediano', 'Grande', 'Jumbo'];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-rose-100">
-      <header className="bg-rose-600 text-white py-6 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl font-bold">EternaFlor</h1>
-          <p className="mt-2 text-rose-100">Ramos artificiales exclusivos</p>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: '#FFF3F7', fontFamily: 'var(--font-nunito)' }}
+    >
+      {/* ── Header ── */}
+      <header className="bg-white border-b" style={{ borderColor: '#9E82B533' }}>
+        <div className="max-w-6xl mx-auto px-4 py-8 text-center">
+          <h1
+            className="text-[2.25rem] font-semibold tracking-tight"
+            style={{
+              fontFamily: 'var(--font-fraunces)',
+              color: '#3A2747',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            EternaFlor
+          </h1>
+          <p className="mt-2 text-base" style={{ color: '#9E82B5' }}>
+            Ramos artificiales exclusivos
+          </p>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex justify-center gap-2 mb-8 flex-wrap">
+      {/* ── Main ── */}
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        {/* Filters */}
+        <div className="flex justify-center gap-2 mb-10 flex-wrap">
           <a
             href="/catalogo"
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              !tamano
-                ? 'bg-rose-600 text-white'
-                : 'bg-white text-rose-600 border border-rose-200'
-            }`}
+            className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+            style={{
+              backgroundColor: !tamano ? '#3A2747' : '#FFFFFF',
+              color: !tamano ? '#FFFFFF' : '#9E82B5',
+              border: '1.5px solid',
+              borderColor: !tamano ? '#3A2747' : '#9E82B5',
+            }}
           >
             Todos
           </a>
-          {['Pequeño', 'Mediano', 'Grande', 'Jumbo'].map((t) => (
+          {TAMANOS.map((t) => (
             <a
               key={t}
               href={`/catalogo?tamano=${t}`}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                tamano === t
-                  ? 'bg-rose-600 text-white'
-                  : 'bg-white text-rose-600 border border-rose-200'
-              }`}
+              className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+              style={{
+                backgroundColor: tamano === t ? '#3A2747' : '#FFFFFF',
+                color: tamano === t ? '#FFFFFF' : '#9E82B5',
+                border: '1.5px solid',
+                borderColor: tamano === t ? '#3A2747' : '#9E82B5',
+              }}
             >
               {t}
             </a>
           ))}
         </div>
 
+        {/* Grid / Empty State */}
         {ramos.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">
-              No hay ramos disponibles en este momento.
-            </p>
-            <p className="text-gray-500 mt-2">
-              Vuelve pronto, estamos preparando nuevos diseños.
+          <div className="text-center py-20">
+            <div className="text-6xl mb-6" aria-hidden>
+              💐
+            </div>
+            <h2
+              className="text-2xl font-semibold"
+              style={{ fontFamily: 'var(--font-fraunces)', color: '#3A2747' }}
+            >
+              Pronto tendremos novedades
+            </h2>
+            <p className="mt-2" style={{ color: '#9E82B5' }}>
+              Estamos preparando nuevos diseños para ti
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ramos.map((ramo) => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {ramos.map((ramo, index) => (
+              <article
                 key={ramo.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                className="group bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-card-in"
+                style={{ animationDelay: `${index * 0.08}s` }}
               >
-                {ramo.fotoUrl ? (
-                  <img
-                    src={ramo.fotoUrl}
-                    alt={ramo.nombre}
-                    className="w-full h-48 object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-rose-100 flex items-center justify-center">
-                    <span className="text-rose-300 text-4xl">✿</span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-800">
-                      {ramo.nombre}
-                    </h3>
-                    <span className="text-xs bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
-                      {ramo.tamano}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-xl font-bold text-rose-700">
+                {/* Image */}
+                <div className="relative">
+                  {ramo.fotoUrl ? (
+                    <img
+                      src={ramo.fotoUrl}
+                      alt={ramo.nombre}
+                      className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-56 flex items-center justify-center"
+                      style={{ backgroundColor: '#9E82B515' }}
+                    >
+                      <span className="text-5xl" style={{ color: '#9E82B5' }}>
+                        ✿
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Size badge */}
+                  <span
+                    className="absolute top-4 right-4 px-3 py-1 text-xs font-bold uppercase tracking-widest"
+                    style={{
+                      backgroundColor: '#FFFFFFCC',
+                      color: '#9E82B5',
+                      borderRadius: '12px',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                  >
+                    {ramo.tamano}
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h3
+                    className="text-lg font-semibold truncate"
+                    style={{ fontFamily: 'var(--font-fraunces)', color: '#3A2747' }}
+                  >
+                    {ramo.nombre}
+                  </h3>
+
+                  <div className="flex items-center justify-between mt-5">
+                    <span
+                      className="text-2xl font-bold"
+                      style={{ fontFamily: 'var(--font-fraunces)', color: '#3A2747' }}
+                    >
                       S/ {ramo.precioVenta.toFixed(2)}
                     </span>
+
+                    {/* Single accent — Tertiary #FF8AB8 per Pastel Candy rule */}
                     <a
                       href={`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(MENSAJE_BASE + ': ' + ramo.nombre + ' (' + ramo.tamano + ')')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center gap-1"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.97]"
+                      style={{ backgroundColor: '#FF8AB8', borderRadius: '20px' }}
                     >
                       <svg
-                        className="w-4 h-4"
+                        className="w-4 h-4 shrink-0"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -120,14 +179,17 @@ export default async function CatalogoPage({
                     </a>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
       </main>
 
-      <footer className="text-center py-6 text-gray-500 text-sm">
-        <p>© 2026 EternaFlor - Ramos artesanales exclusivos</p>
+      {/* ── Footer ── */}
+      <footer className="text-center py-8">
+        <p className="text-sm" style={{ color: '#9E82B5' }}>
+          © 2026 EternaFlor — Ramos artesanales exclusivos
+        </p>
       </footer>
     </div>
   );
