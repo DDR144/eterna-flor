@@ -9,6 +9,7 @@ import { RamosModule } from './ramos/ramos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { CatalogoModule } from './catalogo/catalogo.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ReportesModule } from './reportes/reportes.module';
     PedidosModule,
     CatalogoModule,
     ReportesModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

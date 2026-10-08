@@ -1,20 +1,15 @@
+# pnpm 12 requires explicit approval before running dependency postinstall
+# scripts. This allowlist contains only the packages whose native builds or
+# code generation must run for the application to work:
+#   - @nestjs/core: postinstall donation banner (pnpm flags it for approval)
+#   - @prisma/client, @prisma/engines, prisma: Prisma client generation and
+#     engine download
+#   - bcrypt: native module compilation
+#   - unrs-resolver: transitive dependency that verifies its native binding
 allowBuilds:
-  ' ': true
-  /: true
-  '@': true
-  a: true
-  b: true
-  c: true
-  e: true
-  g: true
-  i: true
-  j: true
-  l: true
-  m: true
-  n: true
-  o: true
-  p: true
-  r: true
-  s: true
-  t: true
-  y: true
+  '@nestjs/core': true
+  '@prisma/client': true
+  '@prisma/engines': true
+  bcrypt: true
+  prisma: true
+  unrs-resolver: true

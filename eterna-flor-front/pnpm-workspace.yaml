@@ -1,3 +1,6 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+# Allow postinstall scripts for dependencies that need native binaries.
+# next uses sharp for image optimization; unrs-resolver is a transitive
+# dependency of eslint-config-next that needs a native binding check.
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
