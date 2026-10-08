@@ -69,3 +69,26 @@ Ninguno. `eterna-flor-back/.env.example` quedó corregido: las cadenas de ejempl
 - `docs/architecture/infrastructure.md:16` afirma que `prisma migrate deploy` corre en el arranque del backend; no es así.
 - `docs/architecture/security.md` afirma que existe `ThrottlerModule`; se implementa en la tarea 1.6.
 - `AGENTS.md:15,25` indica `cd eternally-flor-back`, carpeta que no existe.
+
+---
+
+## Fase 2a — Prerequisitos del despliegue (completada)
+
+| ID | Tarea | Evidencia | Commit |
+|---|---|---|---|
+| 2a.1 | `GET /health` sin tocar la base de datos | Con PostgreSQL detenido: `health.e2e-spec` pasa y `app.e2e-spec` / `auth.e2e-spec` fallan con `PrismaClientInitializationError` | `b9721c7` |
+| 2a.2 | Pin de runtime en ambos paquetes | `engines.node: "24.x"`, `packageManager: "pnpm@12.9.1"`, `.node-version: 24` | `b9721c7` |
+| 2a.3 | `pnpm install` termina con código 0 | Reproducción en copia limpia bajo `/tmp`: sin `allowBuilds` → exit 1; con la configuración → exit 0 | `b9721c7` |
+| 2a.4 | `prisma generate` dentro del build | `"build": "prisma generate && nest build"` | `b9721c7` |
+| 2a.5 | Ignorar el índice local `.codegraph/` | entrada en `.gitignore` | `b9721c7` |
+
+Estado tras esta fase: 30/30 tests unitarios, 3/3 e2e, build correcto en ambos paquetes, lint 22 errores / 51 warnings (línea base intacta).
+
+### Hallazgos de la fase 2a
+
+- **`onlyBuiltDependencies` está silenciosamente muerto en pnpm 12.9.1.** No produce error ni aviso de deprecación: simplemente se ignora. El ajuste que funciona es el mapa `allowBuilds` de `pnpm-workspace.yaml`. El archivo corrupto del backend ya intentaba usar ese nombre con claves basura de un solo carácter, que es la causa raíz del fallo de instalación.
+- **La independencia de la base de datos quedó probada, no argumentada.** Deteniendo el contenedor `postgres18`, el test de `/health` pasa mientras los otros dos fallan al no poder conectar.
+- **Riesgo a vigilar en el despliegue real:** `prisma` es una devDependency. Si la plataforma instala sin dependencias de desarrollo, `prisma generate` no encontrará el CLI y el build fallará. Render instala devDependencies durante el build por defecto; hay que confirmarlo en el primer despliegue.
+- **Riesgo a vigilar:** si la plataforma no respeta `packageManager: pnpm@12.9.1` y usa otro pnpm mayor, `allowBuilds` desaparece y el install vuelve a fallar. Solo verificable en el despliegue real.
+- **`sharp` quedó inservible en la instalación local** tras un build desde fuente fallido, aunque el binario precompilado `@img/sharp-linux-x64` está presente. No afecta a Vercel, que provee su propio runtime, pero romperá la optimización de imágenes en pruebas locales si algún día se auto-aloja el frontend.
+- **Los lockfiles solo ganaron metadatos** (`lockfileVersion`, `packageManagerDependencies`); ninguna versión de dependencia de la aplicación cambió.
