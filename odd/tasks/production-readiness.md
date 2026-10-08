@@ -51,7 +51,7 @@ Decisiones derivadas de la aritmética de tiers gratuitos:
 
 ### Pendientes abiertos de la fase 1
 
-- `eterna-flor-back/.env.example`: la cadena de ejemplo de Neon quedó con un formato engañoso y le falta `sslmode=require`. La corrección está bloqueada por la política de seguridad del editor de rutas `.env*`; requiere autorización explícita del usuario.
+Ninguno. `eterna-flor-back/.env.example` quedó corregido: las cadenas de ejemplo usan el formato real de Neon (host con y sin sufijo `-pooler`, base de datos como segmento de ruta propio) e incluyen `sslmode=require` en ambas. La barrera de seguridad sobre rutas `.env*` se resolvió con autorización explícita del usuario y el alcance se limitó a ese único archivo.
 
 ## Fases posteriores (fuera del alcance de esta fase)
 
