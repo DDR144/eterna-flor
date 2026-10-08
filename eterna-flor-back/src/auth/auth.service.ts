@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../common/services/prisma.service';
@@ -52,17 +56,18 @@ export class AuthService {
   }
 
   async registerAdmin(email: string, password: string) {
-    const existingUser = await this.prisma.usuario.findUnique({
-      where: { email },
-    });
+    const existingUserCount = await this.prisma.usuario.count();
 
-    if (existingUser) {
-      return existingUser;
+    if (existingUserCount > 0) {
+      throw new ForbiddenException(
+        'El registro de administrador no está disponible',
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
     return this.prisma.usuario.create({
       data: { email, passwordHash },
+      select: { id: true, email: true, createdAt: true },
     });
   }
 }

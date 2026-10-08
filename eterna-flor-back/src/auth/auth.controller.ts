@@ -7,6 +7,7 @@ import {
   UseGuards,
   HttpCode,
 } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -18,6 +19,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   async register(@Body() registerDto: RegisterAdminDto) {
     return this.authService.registerAdmin(
@@ -26,6 +29,8 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(200)
   async login(
@@ -33,10 +38,14 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const result = await this.authService.login(loginDto);
+    // The free-tier deployment places the frontend and API on different
+    // registrable domains, so cross-site cookies are unreliable. The frontend
+    // uses the Bearer token returned in the response body instead.
     response.cookie('token', result.token, {
       httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 8 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, matching the JWT lifetime
     });
     return { user: result.user, token: result.token };
   }
