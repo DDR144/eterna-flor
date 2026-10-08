@@ -34,13 +34,24 @@ Decisiones derivadas de la aritmética de tiers gratuitos:
 
 | ID | Tarea | Estado | Evidencia | Commit |
 |---|---|---|---|---|
-| 1.1 | Cambiar Prisma a PostgreSQL con `directUrl` | pending | | |
-| 1.2 | Crear base local `eternaflor` y generar la migración inicial | pending | | |
-| 1.3 | Contrato de variables: `.env` local y `.env.example` actualizado | pending | | |
-| 1.4 | `JWT_SECRET` obligatorio vía `getOrThrow` y expiración de tokens | pending | | |
-| 1.5 | Cerrar `/auth/register` al primer administrador y dejar de exponer `passwordHash` | pending | | |
-| 1.6 | Rate limiting en `/auth/login` | pending | | |
-| 1.7 | Verificación de fase 1: build, lint, test y `migrate deploy` en base limpia | pending | | |
+| 1.1 | Cambiar Prisma a PostgreSQL con `directUrl` | done | `datasource` con `provider = "postgresql"` y `directUrl = env("DIRECT_URL")` | `1c9d84a` |
+| 1.2 | Crear base local `eternaflor` y generar la migración inicial | done | `prisma/migrations/20261008084444_init`; `migrate reset --force` + `migrate deploy` recrean las 6 tablas, 2 enums y el `UNIQUE (ramo_id, materia_prima_id)` | `1c9d84a` |
+| 1.3 | Contrato de variables: `.env` local y `.env.example` actualizado | done | `.env` local con `JWT_SECRET` de `openssl rand -base64 48`, ignorado por `git check-ignore`; `.env.example` documenta 9 variables | `1c9d84a` |
+| 1.4 | `JWT_SECRET` obligatorio vía `getOrThrow` y expiración de tokens | done | `getOrThrow` en `jwt.strategy.ts` y `auth.module.ts`; fallback eliminado; `expiresIn: '7d'` | `28ae998` |
+| 1.5 | Cerrar `/auth/register` al primer administrador y dejar de exponer `passwordHash` | done | Primer `POST /auth/register` → 201, segundo → 403; respuesta `{id,email,createdAt}`; login `{user:{id,email},token}` | `28ae998` |
+| 1.6 | Rate limiting en `/auth/login` | done | `@nestjs/throttler` 6.7.1; 6 logins → `401 401 401 401 401 429`; `GET /` no limitado | `28ae998` |
+| 1.7 | Verificación de fase 1: build, lint, test y `migrate deploy` en base limpia | done | 30/30 unit, 2/2 e2e, build exit 0, lint 22 errores / 51 warnings (idéntico a la línea base, sin errores nuevos) | — |
+
+### Hallazgos de la fase 1
+
+- **El `.env` local puede enmascarar variables faltantes.** El cliente de Prisma carga el `.env` del proyecto al importarse, así que un proceso arrancado desde otro directorio igual encuentra `JWT_SECRET`. En producción no existe `.env` (está ignorado por git), por lo que `getOrThrow` sí aborta el arranque. La prueba de "falla sin `JWT_SECRET`" no se puede hacer en local mientras exista ese archivo.
+- **La aserción de `GET /` en `test/app.e2e-spec.ts` estaba obsoleta antes de esta fase.** `src/app.service.ts` devuelve una cadena más larga que la esperada; se corrigió la aserción, no el comportamiento.
+- **`.codegraph/` está sin trackear** en la raíz del repositorio (índice de herramientas). Debe ignorarse en la tarea 2 de higiene.
+- **`@nestjs/throttler` es en memoria**, así que el límite se reinicia al reiniciar el proceso. Suficiente para una instancia única.
+
+### Pendientes abiertos de la fase 1
+
+- `eterna-flor-back/.env.example`: la cadena de ejemplo de Neon quedó con un formato engañoso y le falta `sslmode=require`. La corrección está bloqueada por la política de seguridad del editor de rutas `.env*`; requiere autorización explícita del usuario.
 
 ## Fases posteriores (fuera del alcance de esta fase)
 
