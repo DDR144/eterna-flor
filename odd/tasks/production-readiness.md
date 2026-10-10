@@ -92,3 +92,26 @@ Estado tras esta fase: 30/30 tests unitarios, 3/3 e2e, build correcto en ambos p
 - **Riesgo a vigilar:** si la plataforma no respeta `packageManager: pnpm@12.9.1` y usa otro pnpm mayor, `allowBuilds` desaparece y el install vuelve a fallar. Solo verificable en el despliegue real.
 - **`sharp` quedó inservible en la instalación local** tras un build desde fuente fallido, aunque el binario precompilado `@img/sharp-linux-x64` está presente. No afecta a Vercel, que provee su propio runtime, pero romperá la optimización de imágenes en pruebas locales si algún día se auto-aloja el frontend.
 - **Los lockfiles solo ganaron metadatos** (`lockfileVersion`, `packageManagerDependencies`); ninguna versión de dependencia de la aplicación cambió.
+
+---
+
+## Fase 5a — Despliegue real (en curso)
+
+### Neon — base de datos de producción: completado
+
+| Dato | Valor |
+|---|---|
+| Proyecto | `icy-cell-68397091`, organización personal, región `aws-us-east-2` (Ohio) |
+| Rama | `production` (`br-fragrant-dew-b4r1paz9`), la default |
+| Base de datos | `eternaflor`, propietaria `eternaflor_owner` |
+| Migración aplicada | `20261008084444_init` |
+| Verificación | `psql` directo contra Neon: `usuarios`, `ramos`, `materias_primas`, `recetas`, `pedidos`, `pedido_items`, `_prisma_migrations`; el historial marca la migración como aplicada |
+
+Hallazgos y decisiones:
+
+- El rol de conexión **no** es `neondb_owner`, que es el valor por defecto del CLI de Neon, sino `eternaflor_owner`. Hubo que pasarlo explícito; de lo contrario la cadena habría apuntado al rol equivocado.
+- Las credenciales de producción **no se escribieron** en `eterna-flor-back/.env`. Se usaron en línea, una sola vez, para aplicar la migración, y el `.env` local sigue apuntando al PostgreSQL de Docker. El log de Prisma lo confirma: dijo que cargó `.env` y aun así aplicó contra Neon, así que las variables en línea tienen precedencia. Un `.env` apuntando a producción es un riesgo real: un test local podría borrar datos reales.
+- Se probó que `PrismaClient` funciona con el pooler **usando solo `DATABASE_URL`**, sin `DIRECT_URL` y sin archivo `.env` (simulando Render). Por lo tanto Render solo necesita `DATABASE_URL`.
+- Las cadenas de Neon incluyen `sslmode=require&channel_binding=require`, y el pooler responde tanto a `psql` como a Prisma.
+- El CLI `neon@8.3.5` (paquete oficial de `neondatabase/neon-pkgs`) se ejecutó con `pnpm dlx`, **sin instalación global**: cero residuo en el sistema. La credencial quedó en `~/.config/neon/credentials.json` (modo 600).
+- Se descartaron los pasos `neon skills`, `neon mcp`, `neon config init`, `neon.ts` y `neon deploy`: pertenecen a Config-as-Code de recursos de Neon, no al despliegue de la aplicación, que vive en Render y Vercel.
