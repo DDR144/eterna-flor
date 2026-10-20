@@ -40,13 +40,33 @@ S11. No hay runner de tests en `eterna-flor-front` (`package.json` no define `te
 
 ## Tasks
 
-| ID | Tarea | Spec | Ruta | Commit |
-|---|---|---|---|---|
-| T1 | Tokens y fuentes globales: `globals.css` con `@theme` según `DESIGN.md`, Fraunces+Nunito en el layout raíz, `prefers-reduced-motion`, utilidades `font-display`/`font-body` | S7, S9 | padre | por definir |
-| T2 | Capa `components/ui/`: `Button`, `Card`, `Badge`, `Field`, `EmptyState`, `Spinner`, `Icon` | S6, S9 | padre | por definir |
-| T3 | Shell del admin (`app/admin/layout.tsx`) migrado a tokens y componentes | S8, S9 | padre | por definir |
-| T4 | Piloto `app/admin/ramos/page.tsx` migrado a tokens y componentes | S8, S9 | padre | por definir |
-| T5 | Verificación: lint, build y auditoría `grep` de S9 sobre los archivos tocados | S11 | padre | por definir |
+| ID | Tarea | Spec | Ruta | Estado | Evidencia | Commit |
+|---|---|---|---|---|---|---|
+| T1 | Tokens y fuentes globales: `globals.css` con `@theme` según `DESIGN.md`, Fraunces+Nunito en el layout raíz, `prefers-reduced-motion`, utilidades `font-display`/`font-body` | S7, S9 | padre | done | `@theme` con 15 tokens de color, 3 de radio y 2 de tipografía; `prefers-reduced-motion` global; `tsc` y `next build` en verde | `0f5d253` |
+| T2 | Capa `components/ui/`: `Button`, `Card`, `Badge`, `Field`, `EmptyState`, `Spinner`, `Icon` | S6, S9 | padre | done | 8 archivos, 331 líneas, cero dependencias nuevas; `eslint components/ui` sin hallazgos | `a376a03` |
+| T3 | Shell del admin (`app/admin/layout.tsx`) migrado a tokens y componentes | S8, S9 | padre | done | emojis → `Icon`; `aria-label`/`aria-current`/`aria-expanded`; skip link; `transition-all` → propiedades explícitas | `d3be4ff` |
+| T4 | Piloto `app/admin/ramos/page.tsx` migrado a tokens y componentes | S8, S9 | padre | done | 0 literales `stone`/`rose`; `Field` × 7; `Intl.NumberFormat`; `dialog` con `aria-modal` + Escape; `alert()` → mensaje inline | `968a05e` |
+| T5 | Verificación: lint, build y auditoría `grep` de S9 sobre los archivos tocados | S11 | padre | done | ver sección `Verificación` | — |
+
+## Verificación
+
+Sin runner de tests en `eterna-flor-front` (S11), la evidencia es la siguiente.
+
+| Comprobación | Antes | Después |
+|---|---|---|
+| `pnpm build` | exit 0 | exit 0 |
+| `eslint` regla `no-explicit-any` | 21 | 18 |
+| `eslint` reglas nuevas | — | ninguna |
+| `eslint` sobre `components/ui`, `app/layout.tsx`, `app/admin/layout.tsx`, `app/admin/ramos/page.tsx` | — | 0 hallazgos |
+| hex en JSX (archivos tocados) | 21 en `catalogo` | 1 (`themeColor`, excepción L13) |
+| `transition-all` (archivos tocados) | 8 | 0 |
+| `stone-*` / `gray-*` (archivos tocados) | 58 + 51 global | 0 |
+| `<img>` sin `width`/`height` (piloto) | 2 de 2 | 0 de 2 |
+| `htmlFor` en `app/admin/` | 0 | generado por `Field` en el piloto |
+
+**Un fallo real durante la fase:** el primer intento de `pnpm build` falló con `Block-scoped variable 'resetForm' used before its declaration` en `app/admin/ramos/page.tsx`. Se detectó porque el build se ejecutó y se leyó su salida; el `exit code 0` que devolvía el pipeline (`| tail`) era el de `tail`, no el de `next build`. Corregido moviendo el `useCallback` por encima de su `useEffect`. Lección aplicada: todo build de esta fase se comprueba con `PIPESTATUS`.
+
+**No verificado:** el aspecto visual. No hay navegador en el entorno de ejecución, así que el remapeo de `.btn-primary`/`.input-field`/`.card` cambia el color de `login`, `pedidos`, `reportes` y `materias-primas` sin confirmación visual. Está previsto y es reversible (commit `0f5d253`), pero se confirma abriendo el navegador.
 
 ## Log
 
