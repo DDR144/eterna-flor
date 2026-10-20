@@ -4,13 +4,27 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { Button, Icon, Spinner } from '@/components/ui';
+import type { IconName } from '@/components/ui';
 
-const navItems = [
-  { href: '/admin/ramos', label: 'Ramos', icon: '🌸' },
-  { href: '/admin/materias-primas', label: 'Materias Primas', icon: '🌿' },
-  { href: '/admin/pedidos', label: 'Pedidos', icon: '📦' },
-  { href: '/admin/reportes', label: 'Reportes', icon: '📊' },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: IconName;
+}
+
+const navItems: NavItem[] = [
+  { href: '/admin/ramos', label: 'Ramos', icon: 'ramos' },
+  { href: '/admin/materias-primas', label: 'Materias primas', icon: 'materias' },
+  { href: '/admin/pedidos', label: 'Pedidos', icon: 'pedidos' },
+  { href: '/admin/reportes', label: 'Reportes', icon: 'reportes' },
 ];
+
+function matchNav(pathname: string): NavItem | undefined {
+  return navItems.find(
+    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+  );
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -26,11 +40,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin"></div>
-          <p className="text-stone-500 text-sm">Cargando...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-petal">
+        <Spinner label="Cargando el panel" />
       </div>
     );
   }
@@ -39,101 +50,145 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null;
   }
 
+  const active = matchNav(pathname);
+
   async function handleLogout() {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
-    window.location.href = '/login';
+    router.replace('/login');
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex">
+    <div className="flex min-h-screen bg-petal">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-tight focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink focus:outline-2 focus:outline-offset-2 focus:outline-ink"
+      >
+        Saltar al contenido
+      </a>
+
       <aside
-        className={`fixed left-0 top-0 h-full bg-white border-r border-stone-200 transition-all duration-300 z-40 flex flex-col ${
+        className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r border-line bg-surface transition-[width] duration-200 ${
           sidebarOpen ? 'w-64' : 'w-20'
         }`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-stone-100">
-          {sidebarOpen && (
+        <div className="flex h-16 items-center justify-between gap-2 border-b border-line px-4">
+          {sidebarOpen ? (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="text-2xl">🌺</span>
-              <span className="font-bold text-rose-700 text-lg">EternaFlor</span>
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 rounded-full bg-blossom"
+              />
+              <span className="font-display text-lg font-semibold text-ink">
+                EternaFlor
+              </span>
+            </Link>
+          ) : (
+            <Link href="/admin" aria-label="EternaFlor, ir al panel">
+              <span
+                aria-hidden="true"
+                className="block h-2.5 w-2.5 rounded-full bg-blossom"
+              />
             </Link>
           )}
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-stone-100 text-stone-500"
+            aria-label={sidebarOpen ? 'Contraer menú' : 'Expandir menú'}
+            aria-expanded={sidebarOpen}
+            aria-controls="menu-lateral"
+            className="rounded-tight p-1.5 text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
-            {sidebarOpen ? '◀' : '▶'}
+            <Icon
+              name={sidebarOpen ? 'izquierda' : 'derecha'}
+              className="h-4 w-4"
+            />
           </button>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav id="menu-lateral" aria-label="Secciones del panel" className="flex-1 space-y-1 p-3">
           {navItems.map((item) => {
-            const isActive = pathname.includes(item.href.split('/').pop() || '');
+            const isActive = active?.href === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+                title={item.label}
+                aria-label={sidebarOpen ? undefined : item.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={`flex items-center gap-3 rounded-tight px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
                   isActive
-                    ? 'bg-rose-50 text-rose-700'
-                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    ? 'bg-petal font-semibold text-ink'
+                    : 'font-medium text-ink-muted hover:bg-petal hover:text-ink'
                 }`}
               >
-                <span className="text-lg">{item.icon}</span>
-                {sidebarOpen && (
-                  <span className="font-medium text-sm">{item.label}</span>
-                )}
+                <Icon name={item.icon} />
+                {sidebarOpen ? <span>{item.label}</span> : null}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-3 border-t border-stone-100">
+        <div className="space-y-1 border-t border-line p-3">
           <Link
             href="/catalogo"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 transition-colors"
+            rel="noopener noreferrer"
+            title="Ver catálogo"
+            aria-label={sidebarOpen ? undefined : 'Ver catálogo'}
+            className="flex items-center gap-3 rounded-tight px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
-            <span className="text-lg">🛒</span>
-            {sidebarOpen && <span className="text-sm font-medium">Ver Catálogo</span>}
+            <Icon name="catalogo" />
+            {sidebarOpen ? <span>Ver catálogo</span> : null}
           </Link>
           <button
+            type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 hover:text-red-600 transition-colors mt-1"
+            title="Cerrar sesión"
+            aria-label={sidebarOpen ? undefined : 'Cerrar sesión'}
+            className="flex w-full items-center gap-3 rounded-tight px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
-            <span className="text-lg">🚪</span>
-            {sidebarOpen && <span className="text-sm font-medium">Cerrar sesión</span>}
+            <Icon name="salir" />
+            {sidebarOpen ? <span>Cerrar sesión</span> : null}
           </button>
         </div>
       </aside>
 
-      <main
-        className={`flex-1 transition-all duration-300 ${
+      <div
+        className={`flex flex-1 flex-col transition-[margin-left] duration-200 ${
           sidebarOpen ? 'ml-64' : 'ml-20'
         }`}
       >
-        <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-6 sticky top-0 z-30">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-stone-800">
-              {navItems.find(n => pathname.includes(n.href.split('/').pop() || ''))?.label || 'Panel'}
-            </h1>
-          </div>
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-surface px-6">
+          <h1 className="font-display text-xl font-semibold text-ink">
+            {active?.label ?? 'Panel'}
+          </h1>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-stone-500">
+            <span className="hidden text-sm text-ink-muted sm:inline" title={user.email}>
               {user.email}
             </span>
-            <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center text-rose-700 font-medium text-sm">
-              {user.email?.[0]?.toUpperCase() || 'U'}
-            </div>
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-blossom text-sm font-semibold text-ink"
+            >
+              {user.email?.[0]?.toUpperCase() ?? 'U'}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="sm:hidden"
+            >
+              Salir
+            </Button>
           </div>
         </header>
-        <div className="p-6 animate-fade-in">
+        <main id="contenido" className="animate-fade-in p-6">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
