@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min, IsIn } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateMateriaPrimaDto {
@@ -58,6 +58,12 @@ export class ActualizarStockDto {
   @Transform(({ value }) => Number(value))
   cantidad: number;
 
+  /**
+   * Operación a realizar sobre el stock.
+   * La interfaz de administración no utiliza este endpoint aún, por lo que
+   * se mantiene como campo explícito con valores permitidos.
+   */
   @IsString()
+  @IsIn(['sumar', 'restar'])
   operacion: 'sumar' | 'restar';
 }

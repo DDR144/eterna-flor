@@ -16,22 +16,6 @@ import { RamosService } from './ramos.service';
 import { CreateRamoDto, UpdateRamoDto } from './dto/ramo.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-function parseFormData(body: any): CreateRamoDto | UpdateRamoDto {
-  const result: any = {};
-
-  if (body.nombre) result.nombre = body.nombre;
-  if (body.tamano) result.tamano = body.tamano;
-  if (body.precioVenta) result.precioVenta = parseFloat(body.precioVenta);
-  if (body.stock !== undefined && body.stock !== '') result.stock = parseInt(body.stock);
-  if (body.recetas) {
-    try {
-      result.recetas = JSON.parse(body.recetas);
-    } catch {}
-  }
-
-  return result;
-}
-
 @Controller('ramos')
 @UseGuards(JwtAuthGuard)
 export class RamosController {
@@ -55,10 +39,9 @@ export class RamosController {
   @Post()
   @UseInterceptors(FileInterceptor('foto'))
   create(
-    @Body() body: any,
+    @Body() createDto: CreateRamoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    const createDto = parseFormData(body) as CreateRamoDto;
     return this.service.create(createDto, file?.buffer);
   }
 
@@ -66,10 +49,9 @@ export class RamosController {
   @UseInterceptors(FileInterceptor('foto'))
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: any,
+    @Body() updateDto: UpdateRamoDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    const updateDto = parseFormData(body) as UpdateRamoDto;
     return this.service.update(id, updateDto, file?.buffer);
   }
 

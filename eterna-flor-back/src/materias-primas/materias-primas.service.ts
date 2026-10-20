@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import {
   CreateMateriaPrimaDto,
@@ -71,7 +75,7 @@ export class MateriasPrimasService {
         : Number(materia.stockActual) - cantidad;
 
     if (nuevoStock < 0) {
-      throw new Error('Stock insuficiente');
+      throw new BadRequestException('Stock insuficiente');
     }
 
     return this.prisma.materiaPrima.update({

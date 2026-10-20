@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { MateriasPrimasService } from './materias-primas.service';
 import { PrismaService } from '../common/services/prisma.service';
 
 describe('MateriasPrimasService', () => {
   let service: MateriasPrimasService;
-  let prisma: PrismaService;
 
   const mockPrisma = {
     materiaPrima: {
@@ -25,7 +25,6 @@ describe('MateriasPrimasService', () => {
     }).compile();
 
     service = module.get<MateriasPrimasService>(MateriasPrimasService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -171,7 +170,7 @@ describe('MateriasPrimasService', () => {
       expect(Number(result.stockActual)).toBe(5);
     });
 
-    it('should throw error when stock is insufficient', async () => {
+    it('should throw BadRequestException when stock is insufficient', async () => {
       const mockMateria = {
         id: 1,
         nombre: 'Flores',
@@ -181,6 +180,9 @@ describe('MateriasPrimasService', () => {
       };
       mockPrisma.materiaPrima.findUnique.mockResolvedValue(mockMateria);
 
+      await expect(
+        service.actualizarStock(1, { cantidad: 5, operacion: 'restar' }),
+      ).rejects.toThrow(BadRequestException);
       await expect(
         service.actualizarStock(1, { cantidad: 5, operacion: 'restar' }),
       ).rejects.toThrow('Stock insuficiente');
