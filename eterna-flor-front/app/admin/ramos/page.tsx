@@ -1,13 +1,23 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
 import { TAMANOS, labelTamano } from '@/lib/tamanos';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Icon,
+  Input,
+  Select,
+  Spinner,
+} from '@/components/ui';
 
 interface RecetaItem {
   materiaPrimaId: number;
   cantidad: number;
-  nombre?: string;
 }
 
 interface Ramo {
@@ -27,12 +37,19 @@ interface Ramo {
   }>;
 }
 
+const money = new Intl.NumberFormat('es-PE', {
+  style: 'currency',
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+});
+
 export default function RamosPage() {
   const [ramos, setRamos] = useState<Ramo[]>([]);
   const [materias, setMaterias] = useState<Array<{ id: number; nombre: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [formError, setFormError] = useState('');
   const [form, setForm] = useState({
     nombre: '',
     tamano: 'Mediano' as string,
@@ -44,9 +61,28 @@ export default function RamosPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const resetForm = useCallback(() => {
+    setForm({ nombre: '', tamano: 'Mediano', precioVenta: '', stock: '0' });
+    setRecetas([]);
+    setFoto(null);
+    setPreview(null);
+    setFormError('');
+    setShowForm(false);
+    setEditingId(null);
+  }, []);
+
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!showForm) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') resetForm();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showForm, resetForm]);
 
   async function loadData() {
     try {
@@ -55,7 +91,12 @@ export default function RamosPage() {
         api.materiasPrimas.getAll(),
       ]);
       setRamos(ramosData);
-      setMaterias(materiasData.map((m: any) => ({ id: m.id, nombre: m.nombre })));
+      setMaterias(
+        materiasData.map((m: { id: number; nombre: string }) => ({
+          id: m.id,
+          nombre: m.nombre,
+        })),
+      );
     } catch (err) {
       console.error(err);
     } finally {
@@ -73,15 +114,19 @@ export default function RamosPage() {
 
   function addReceta() {
     if (materias.length === 0) {
-      alert('Primero crea materias primas');
+      setFormError('Primero crea al menos una materia prima.');
       return;
     }
     setRecetas([...recetas, { materiaPrimaId: materias[0].id, cantidad: 1 }]);
   }
 
-  function updateReceta(index: number, field: string, value: any) {
+  function updateReceta<K extends keyof RecetaItem>(
+    index: number,
+    field: K,
+    value: RecetaItem[K],
+  ) {
     const updated = [...recetas];
-    (updated[index] as any)[field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setRecetas(updated);
   }
 
@@ -91,13 +136,21 @@ export default function RamosPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setFormError('');
+
+    const precioVenta = Number.parseFloat(form.precioVenta);
+    if (!Number.isFinite(precioVenta) || precioVenta <= 0) {
+      setFormError('El precio debe ser un número mayor que cero.');
+      return;
+    }
+
     try {
       const data = {
-        nombre: form.nombre,
+        nombre: form.nombre.trim(),
         tamano: form.tamano,
-        precioVenta: parseFloat(form.precioVenta),
-        stock: parseInt(form.stock),
-        recetas: recetas.filter(r => r.materiaPrimaId && r.cantidad > 0),
+        precioVenta,
+        stock: Number.parseInt(form.stock, 10) || 0,
+        recetas: recetas.filter((r) => r.materiaPrimaId && r.cantidad > 0),
       };
 
       if (editingId) {
@@ -109,17 +162,10 @@ export default function RamosPage() {
       resetForm();
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error');
+      setFormError(
+        err instanceof Error ? err.message : 'No se pudo guardar el ramo.',
+      );
     }
-  }
-
-  function resetForm() {
-    setForm({ nombre: '', tamano: 'Mediano', precioVenta: '', stock: '0' });
-    setRecetas([]);
-    setFoto(null);
-    setPreview(null);
-    setShowForm(false);
-    setEditingId(null);
   }
 
   function handleEdit(ramo: Ramo) {
@@ -129,185 +175,237 @@ export default function RamosPage() {
       precioVenta: String(ramo.precioVenta),
       stock: String(ramo.stock),
     });
-    setRecetas(ramo.recetas.map(r => ({
-      materiaPrimaId: r.materiaPrima.id,
-      cantidad: Number(r.cantidad),
-      nombre: r.materiaPrima.nombre,
-    })));
+    setRecetas(
+      ramo.recetas.map((r) => ({
+        materiaPrimaId: r.materiaPrima.id,
+        cantidad: Number(r.cantidad),
+      })),
+    );
     setPreview(ramo.fotoUrl);
+    setFormError('');
     setEditingId(ramo.id);
     setShowForm(true);
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('¿Eliminar este ramo?')) return;
+    if (!confirm('¿Eliminar este ramo? La acción no se puede deshacer.')) return;
     try {
       await api.ramos.delete(id);
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error');
+      console.error(err);
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin"></div>
-        <p className="text-stone-500 text-sm">Cargando...</p>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner label="Cargando ramos" />
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-800">Ramos</h1>
-          <p className="text-stone-500 text-sm mt-1">{ramos.length} productos registrados</p>
-        </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="btn-primary flex items-center gap-2"
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-ink-muted">
+          {ramos.length === 1
+            ? '1 ramo registrado'
+            : `${ramos.length} ramos registrados`}
+        </p>
+        <Button
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
         >
-          <span>+</span> Nuevo Ramo
-        </button>
+          <Icon name="mas" className="h-4 w-4" />
+          Nuevo ramo
+        </Button>
       </div>
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-8 animate-fade-in">
-            <div className="flex justify-between items-center p-6 border-b border-stone-100">
-              <h2 className="text-xl font-semibold text-stone-800">
-                {editingId ? 'Editar' : 'Nuevo'} Ramo
+      {showForm ? (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-ink/40 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) resetForm();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-formulario-ramo"
+            className="my-8 w-full max-w-lg animate-fade-in rounded-lush border border-line bg-surface"
+          >
+            <div className="flex items-center justify-between border-b border-line px-6 py-4">
+              <h2
+                id="titulo-formulario-ramo"
+                className="font-display text-lg font-semibold text-ink"
+              >
+                {editingId ? 'Editar ramo' : 'Nuevo ramo'}
               </h2>
               <button
+                type="button"
                 onClick={resetForm}
-                className="text-stone-400 hover:text-stone-600 p-1"
+                aria-label="Cerrar formulario"
+                className="rounded-tight p-1.5 text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
-                ✕
+                <Icon name="cerrar" className="h-4 w-4" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">Nombre</label>
-                <input
+
+            <form onSubmit={handleSubmit} className="space-y-5 px-6 py-5">
+              {formError ? (
+                <p
+                  role="alert"
+                  className="rounded-tight border border-danger/40 bg-danger/5 px-3 py-2 text-sm text-danger"
+                >
+                  {formError}
+                </p>
+              ) : null}
+
+              <Field label="Nombre" name="nombre" required>
+                <Input
                   type="text"
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  className="input-field"
-                  placeholder="Ej: Ramo Romantic"
-                  required
+                  placeholder="Ramo Romantic"
+                  autoComplete="off"
                 />
-              </div>
+              </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1.5">Tamaño</label>
-                  <select
+                <Field label="Tamaño" name="tamano">
+                  <Select
                     value={form.tamano}
                     onChange={(e) => setForm({ ...form, tamano: e.target.value })}
-                    className="input-field"
                   >
                     {TAMANOS.map((t) => (
-                      <option key={t} value={t}>{labelTamano(t)}</option>
+                      <option key={t} value={t}>
+                        {labelTamano(t)}
+                      </option>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1.5">Precio (S/)</label>
-                  <input
+                  </Select>
+                </Field>
+
+                <Field label="Precio (S/)" name="precioVenta" required>
+                  <Input
                     type="number"
                     step="0.01"
+                    min="0"
+                    inputMode="decimal"
                     value={form.precioVenta}
-                    onChange={(e) => setForm({ ...form, precioVenta: e.target.value })}
-                    className="input-field"
-                    placeholder="0.00"
-                    required
+                    onChange={(e) =>
+                      setForm({ ...form, precioVenta: e.target.value })
+                    }
+                    placeholder="0,00"
                   />
-                </div>
+                </Field>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">Stock</label>
-                <input
+              <Field label="Stock" name="stock">
+                <Input
                   type="number"
+                  min="0"
+                  inputMode="numeric"
                   value={form.stock}
                   onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                  className="input-field"
                   placeholder="0"
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1.5">Foto</label>
+              <div className="space-y-1.5">
+                <span className="block text-sm font-medium text-ink">Foto</span>
                 <div className="flex items-center gap-4">
-                  <label className="flex-1 cursor-pointer">
+                  <label className="flex-1 cursor-pointer rounded-tight border border-dashed border-line-strong px-4 py-4 text-center text-sm text-ink-muted transition-colors duration-150 hover:border-blossom hover:text-ink focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink">
                     <input
                       type="file"
                       ref={fileInputRef}
+                      name="foto"
                       accept="image/jpeg,image/png,image/webp"
                       onChange={handlePhotoChange}
-                      className="hidden"
+                      className="sr-only"
                     />
-                    <div className="border-2 border-dashed border-stone-300 rounded-lg p-4 text-center hover:border-rose-400 hover:bg-rose-50 transition-colors">
-                      <span className="text-stone-500 text-sm">📷 Subir imagen</span>
-                    </div>
+                    Elegir imagen
                   </label>
-                  {preview && (
+                  {preview ? (
                     <div className="relative">
-                      <img src={preview} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                      <img
+                        src={preview}
+                        alt="Vista previa de la foto del ramo"
+                        width={80}
+                        height={80}
+                        className="h-20 w-20 rounded-tight object-cover"
+                      />
                       <button
                         type="button"
-                        onClick={() => { setFoto(null); setPreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                        onClick={() => {
+                          setFoto(null);
+                          setPreview(null);
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                        }}
+                        aria-label="Quitar la imagen seleccionada"
+                        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-danger text-surface transition-colors duration-150 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                       >
-                        ×
+                        <Icon name="cerrar" className="h-3 w-3" />
                       </button>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-stone-700">Receta (Materias Primas)</label>
-                  <button
-                    type="button"
-                    onClick={addReceta}
-                    className="text-rose-600 text-sm font-medium hover:text-rose-700"
-                  >
-                    + Agregar
-                  </button>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-ink">
+                    Receta (materias primas)
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={addReceta}>
+                    <Icon name="mas" className="h-3.5 w-3.5" />
+                    Agregar
+                  </Button>
                 </div>
+
                 {recetas.length === 0 ? (
-                  <p className="text-stone-400 text-sm italic">Sin materias primas agregadas</p>
+                  <p className="text-sm text-ink-muted">
+                    Sin materias primas agregadas.
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {recetas.map((r, i) => (
-                      <div key={i} className="flex gap-2 items-center">
-                        <select
+                      <div key={i} className="flex items-center gap-2">
+                        <Select
+                          aria-label="Materia prima"
                           value={r.materiaPrimaId}
-                          onChange={(e) => updateReceta(i, 'materiaPrimaId', parseInt(e.target.value))}
-                          className="flex-1 input-field text-sm"
+                          onChange={(e) =>
+                            updateReceta(i, 'materiaPrimaId', Number.parseInt(e.target.value, 10))
+                          }
+                          className="flex-1"
                         >
                           {materias.map((m) => (
-                            <option key={m.id} value={m.id}>{m.nombre}</option>
+                            <option key={m.id} value={m.id}>
+                              {m.nombre}
+                            </option>
                           ))}
-                        </select>
-                        <input
+                        </Select>
+                        <Input
                           type="number"
                           step="0.01"
+                          min="0"
+                          inputMode="decimal"
+                          aria-label="Cantidad utilizada"
                           value={r.cantidad}
-                          onChange={(e) => updateReceta(i, 'cantidad', parseFloat(e.target.value))}
-                          className="w-24 input-field text-sm"
-                          placeholder="Cant"
+                          onChange={(e) =>
+                            updateReceta(i, 'cantidad', Number.parseFloat(e.target.value))
+                          }
+                          className="w-24"
                         />
                         <button
                           type="button"
                           onClick={() => removeReceta(i)}
-                          className="text-stone-400 hover:text-red-500 p-2"
+                          aria-label="Quitar materia prima de la receta"
+                          className="rounded-tight p-2 text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                         >
-                          🗑️
+                          <Icon name="basura" className="h-4 w-4" />
                         </button>
                       </div>
                     ))}
@@ -315,105 +413,145 @@ export default function RamosPage() {
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 btn-primary"
-                >
-                  {editingId ? 'Actualizar' : 'Crear'}
-                </button>
-                <button
-                  type="button"
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" className="flex-1">
+                  {editingId ? 'Guardar cambios' : 'Crear ramo'}
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={resetForm}
-                  className="flex-1 btn-secondary"
+                  className="flex-1"
                 >
                   Cancelar
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </div>
-      )}
+      ) : null}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {ramos.map((ramo) => (
-          <div key={ramo.id} className="card card-hover overflow-hidden group">
-            <div className="relative">
+      {ramos.length === 0 ? (
+        <EmptyState
+          title="Todavía no hay ramos"
+          description="Crea el primero para que aparezca en el catálogo."
+          action={
+            <Button
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+            >
+              <Icon name="mas" className="h-4 w-4" />
+              Nuevo ramo
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {ramos.map((ramo) => (
+            <Card key={ramo.id} className="overflow-hidden">
               {ramo.fotoUrl ? (
-                <img src={ramo.fotoUrl} alt={ramo.nombre} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img
+                  src={ramo.fotoUrl}
+                  alt={`Ramo ${ramo.nombre}`}
+                  width={400}
+                  height={176}
+                  loading="lazy"
+                  className="h-44 w-full object-cover"
+                />
               ) : (
-                <div className="w-full h-44 bg-stone-100 flex items-center justify-center text-stone-400">
-                  <span className="text-4xl">🌸</span>
+                <div className="flex h-44 w-full items-center justify-center bg-petal text-ink-muted">
+                  <Icon name="ramos" className="h-8 w-8" />
                 </div>
               )}
-              <span className="absolute top-3 right-3 text-xs bg-white/90 backdrop-blur text-stone-700 px-2.5 py-1 rounded-full font-medium">
-                {labelTamano(ramo.tamano)}
-              </span>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-stone-800 mb-3">{ramo.nombre}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-stone-500">Precio</span>
-                  <span className="font-semibold text-stone-800">S/ {ramo.precioVenta.toFixed(2)}</span>
+
+              <div className="space-y-3 p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="min-w-0 flex-1 truncate font-display text-base font-semibold text-ink">
+                    {ramo.nombre}
+                  </h2>
+                  <Badge tone="neutral">{labelTamano(ramo.tamano)}</Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-stone-500">Costo</span>
-                  <span className="text-stone-600">S/ {ramo.costoCalculado.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-stone-500">Margen</span>
-                  <span className={ramo.margen > 0 ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-                    S/ {ramo.margen.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-stone-500">Stock</span>
-                  <span className={`font-medium ${ramo.alertaStock ? 'text-red-600' : 'text-stone-700'}`}>
-                    {ramo.stock} {ramo.alertaStock && '⚠️'}
-                  </span>
-                </div>
-              </div>
-              {ramo.recetas.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-stone-100">
-                  <p className="text-xs text-stone-400 mb-2">Receta</p>
-                  <div className="flex flex-wrap gap-1">
-                    {ramo.recetas.slice(0, 3).map((r, i) => (
-                      <span key={i} className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded">
-                        {r.materiaPrima.nombre}
-                      </span>
-                    ))}
-                    {ramo.recetas.length > 3 && (
-                      <span className="text-xs text-stone-400">+{ramo.recetas.length - 3}</span>
-                    )}
+
+                <dl className="space-y-1.5 text-sm">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <dt className="text-ink-muted">Precio</dt>
+                    <dd className="numeric font-semibold text-ink">
+                      {money.format(ramo.precioVenta)}
+                    </dd>
                   </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <dt className="text-ink-muted">Costo</dt>
+                    <dd className="numeric text-ink-muted">
+                      {money.format(ramo.costoCalculado)}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <dt className="text-ink-muted">Margen</dt>
+                    <dd
+                      className={`numeric font-medium ${
+                        ramo.margen > 0 ? 'text-success' : 'text-danger'
+                      }`}
+                    >
+                      {money.format(ramo.margen)}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <dt className="text-ink-muted">Stock</dt>
+                    <dd className="numeric flex items-center gap-2">
+                      <span
+                        className={ramo.alertaStock ? 'text-danger' : 'text-ink'}
+                      >
+                        {ramo.stock}
+                      </span>
+                      {ramo.alertaStock ? <Badge tone="danger">Bajo</Badge> : null}
+                    </dd>
+                  </div>
+                </dl>
+
+                {ramo.recetas.length > 0 ? (
+                  <div className="border-t border-line pt-3">
+                    <p className="mb-2 text-xs font-medium text-ink-muted">
+                      Receta
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {ramo.recetas.slice(0, 3).map((r) => (
+                        <Badge key={r.id} tone="neutral">
+                          {r.materiaPrima.nombre}
+                        </Badge>
+                      ))}
+                      {ramo.recetas.length > 3 ? (
+                        <span className="text-xs text-ink-muted">
+                          +{ramo.recetas.length - 3}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleEdit(ramo)}
+                    className="flex-1"
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(ramo.id)}
+                    aria-label={`Eliminar ${ramo.nombre}`}
+                  >
+                    <Icon name="basura" className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => handleEdit(ramo)}
-                  className="flex-1 text-sm py-2 rounded-lg border border-stone-200 text-stone-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-colors"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(ramo.id)}
-                  className="flex-1 text-sm py-2 rounded-lg border border-stone-200 text-stone-400 hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors"
-                >
-                  Eliminar
-                </button>
               </div>
-            </div>
-          </div>
-        ))}
-        {ramos.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-16 text-stone-400">
-            <span className="text-5xl mb-4">🌺</span>
-            <p className="text-lg">No hay ramos registrados</p>
-            <p className="text-sm mt-1">Crea tu primer ramo floral</p>
-          </div>
-        )}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
