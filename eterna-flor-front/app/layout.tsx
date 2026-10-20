@@ -1,21 +1,29 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-fraunces",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const nunito = Nunito({
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-nunito",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "EternaFlor - Gestión de Ramos Florales",
   description: "Sistema de gestión para negocio de ramos florales",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fff3f7",
 };
 
 export default function RootLayout({
@@ -26,9 +34,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

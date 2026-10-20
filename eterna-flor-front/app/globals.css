@@ -1,120 +1,161 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
-  --card: #ffffff;
-  --card-foreground: #1c1917;
-  --popover: #ffffff;
-  --popover-foreground: #1c1917;
-  --primary: #be123c;
-  --primary-foreground: #ffffff;
-  --primary-light: #fdf2f8;
-  --secondary: #f5f5f4;
-  --secondary-foreground: #44403c;
-  --muted: #f5f5f4;
-  --muted-foreground: #78716c;
-  --accent: #fdf2f8;
-  --accent-foreground: #be123c;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e7e5e4;
-  --input: #e7e5e4;
-  --ring: #be123c;
-  --radius: 0.5rem;
-  --success: #22c55e;
-  --warning: #f59e0b;
+/* ─────────────────────────────────────────────────────────────
+   Tokens — fuente de verdad: DESIGN.md (sistema "Pastel Candy")
+   Cada valor de color tiene un único consumidor esperado.
+   No se escribe hex en JSX: se usa bg-ink, text-ink-muted, etc.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* Superficie y texto */
+  --color-ink: #3a2747;
+  --color-ink-muted: #6e5a7a;
+  --color-surface: #ffffff;
+  --color-petal: #fff3f7;
+  --color-petal-deep: #fbe4ee;
+  --color-line: #ecd9e6;
+  --color-line-strong: #dcc4d6;
+
+  /* Acento: único driver de interacción.
+     lilac queda para bordes y rellenos decorativos, nunca para texto
+     (2.7:1 sobre petal, por debajo de AA). */
+  --color-lilac: #9e82b5;
+  --color-blossom: #ff8ab8;
+  --color-blossom-deep: #f2659c;
+
+  /* Estados */
+  --color-success: #1f7a52;
+  --color-warning: #8a5a12;
+  --color-danger: #a4262f;
+
+  /* Radios — DESIGN.md: 12 / 20 / 32.
+     Nombres propios a propósito: sobrescribir --radius-sm/md/lg cambiaría
+     `rounded-lg` en toda la app, incluidas las pantallas fuera de alcance. */
+  --radius-tight: 12px;
+  --radius-soft: 20px;
+  --radius-lush: 32px;
+
+  /* Tipografía — DESIGN.md: Fraunces display, Nunito body */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-light: var(--primary-light);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
+  }
+
+  body {
+    background-color: var(--color-petal);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* Cifras alineadas en columnas de tabla y en cualquier importe. */
+  .numeric {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-* {
-  border-color: var(--border);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
-}
-
+/* ─────────────────────────────────────────────────────────────
+   Movimiento. Toda animación y transición es opcional para quien
+   pidió menos movimiento en su sistema operativo.
+   ───────────────────────────────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.2s ease-out;
-}
-
-.btn-primary {
-  @apply bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-rose-700 hover:shadow-md active:scale-[0.98];
-}
-
-.btn-secondary {
-  @apply bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-stone-200 active:scale-[0.98];
-}
-
-.btn-ghost {
-  @apply text-muted-foreground px-3 py-2 rounded-lg transition-all duration-200 hover:bg-stone-100;
-}
-
-.input-field {
-  @apply w-full px-3 py-2.5 border border-input rounded-lg bg-white text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring;
-}
-
-.card {
-  @apply bg-card rounded-xl border border-border shadow-sm transition-all duration-200;
-}
-
-.card-hover {
-  @apply hover:shadow-md hover:border-stone-300;
-}
-
+/* Deprecada: entrada escalonada por tarjeta, el patrón genérico que esta
+   feature está retirando. Sobrevive mientras `catalogo/` no se migre
+   (fuera de alcance de esta fase). */
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.animate-card-in {
-  animation: cardIn 0.5s ease-out forwards;
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 160ms ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 160ms ease-out;
+  }
+
+  .animate-card-in {
+    animation: cardIn 240ms ease-out forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Clases heredadas. Se remapean a los tokens nuevos para que las
+   pantallas aún no migradas (login, pedidos, reportes,
+   materias-primas, catálogo) hereden la paleta unificada sin
+   editarlas. El piloto y el shell usan components/ui en su lugar.
+   Deprecadas: no agregar usos nuevos.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-soft bg-blossom px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-blossom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-soft border border-line-strong bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors duration-150 hover:bg-petal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-soft px-3 py-2 text-sm font-medium text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink;
+  }
+
+  .input-field {
+    @apply w-full rounded-tight border border-line-strong bg-surface px-3 py-2.5 text-sm text-ink transition-colors duration-150 placeholder:text-ink-muted/60 focus-visible:border-blossom focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-blossom;
+  }
+
+  .card {
+    @apply rounded-lush border border-line bg-surface;
+  }
+
+  .card-hover {
+    @apply transition-colors duration-150 hover:border-line-strong;
+  }
 }
