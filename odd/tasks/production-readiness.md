@@ -95,6 +95,52 @@ Estado tras esta fase: 30/30 tests unitarios, 3/3 e2e, build correcto en ambos p
 
 ---
 
+## Fase 3 — Robustez de API (en curso)
+
+**Rama:** `feat/api-validation` (base `846e440`, dos commits).
+**Slice de revisión:** 676 líneas autoradas en 2 commits, por encima del límite orientativo de ~400. Frontera del slice: `1a9019c` (validación y contrato de errores) + `11c97be` (compatibilidad con el panel desplegado). Se acepta como una sola entrega porque ambos commits son un único cambio de contrato y el segundo existe para reparar una regresión que el primero introdujo; separarlos dejaría el primero en un estado que rompe producción.
+
+### Lo entregado
+
+- DTOs validados en las rutas de escritura de ramos, con coerción numérica para multipart y `recetas` parseada con un transform que falla con 400 si el JSON es inválido.
+- `forbidNonWhitelisted: true` en el `ValidationPipe` global.
+- Filtro global de excepciones de Prisma: P2002 → 409, P2025 → 404, P2003 → 409, con mensajes en español que no filtran SQL, tablas, columnas ni trazas.
+- `Error('Stock insuficiente')` reemplazado por `BadRequestException` (400).
+- `operacion` de materias primas restringido a sus valores válidos.
+- Guard en los tests e2e que aborta si `DATABASE_URL` apunta a un host no local, más limpieza dirigida por ids en lugar de `deleteMany` de tabla completa.
+- e2e determinista: el usuario de prueba se crea por Prisma y se autentica por el endpoint de login, así que la suite pasa aunque la base local ya tenga usuarios.
+
+### Hallazgos de esta fase
+
+- **Bug preexistente en producción:** crear un ramo de tamaño `Pequeño` devolvía 500. El frontend envía la etiqueta acentuada del `@map` pero el miembro del enum del cliente Prisma es `Pequeno`; los guards corren antes que los pipes, así que el cuerpo `any` nunca se validaba y Prisma recibía un valor inexistente. Ahora se normaliza en el DTO.
+- **Regresión detectada por la compuerta y corregida:** el panel **desplegado** envía `nombre` dentro de cada receta al editar un ramo, y `forbidNonWhitelisted` lo rechazaba con 400, lo que habría roto toda edición de ramos con recetas. La verificación anterior no lo vio porque validó contra el panel rediseñado de `feat/ui-design-system`, que **no** está desplegado. Queda como lección: validar siempre contra el código que está en vivo, no contra el que se está preparando.
+- La limpieza destructiva de los e2e era una mina: borraba todas las tablas de la base a la que apuntara `DATABASE_URL`, y la base de producción es remota.
+
+### Estado de verificación
+
+Compuerta de producción independiente sobre `feat/api-validation`:
+
+- `1a9019c`: **NO-GO** — `forbidNonWhitelisted` rechazaba `recetas[].nombre`, campo que el panel desplegado envía al editar un ramo.
+- `11c97be`: **GO** tras corregirlo y ampliar la compuerta a los tres paneles de escritura.
+
+Evidencia del GO:
+
+| Comprobación | Resultado |
+|---|---|
+| Matriz de compatibilidad (ramos, materias primas, pedidos) contra los payloads del frontend **en vivo** | Todos aceptados; ningún campo legítimo rechazado |
+| Campos realmente desconocidos | Siguen devolviendo 400 en los tres paneles |
+| Tests unitarios | 33/33 |
+| Tests e2e | 16/16, con el usuario local preexistente presente |
+| Build | correcto |
+| Lint | 16 errores / 28 warnings (línea base 22/51), sin errores nuevos |
+| Alcance | 12 archivos, todos en `eterna-flor-back/`, **cero** cambios en `prisma/` |
+| Fusión | fast-forward limpio; `main` no tiene commits ausentes |
+| Reversibilidad | total: sin migraciones, sin escritura de datos, sin contratos eliminados |
+
+No verificado: la subida real de fotos a Cloudinary (falta configurar la cuenta) y nada contra la base de producción, por diseño.
+
+---
+
 ## Fase 5a — Despliegue real (en curso)
 
 ### Neon — base de datos de producción: completado
