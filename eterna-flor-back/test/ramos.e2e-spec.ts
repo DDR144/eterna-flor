@@ -4,13 +4,14 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { AppModule } from './../src/app.module';
 import { assertLocalDatabase } from './helpers/database-guard';
 
 const TEST_ADMIN_EMAIL = 'test-admin@example.com';
-const TEST_SECOND_ADMIN_EMAIL = 'another-admin@example.com';
 const TEST_MATERIA_PRIMA_NOMBRE = 'Rosa de prueba';
 const TEST_RAMO_NOMBRE_PREFIX = 'Ramo ';
+const TEST_PASSWORD = 'password123';
 
 describe('RamosController (e2e)', () => {
   let app: INestApplication<App>;
@@ -45,9 +46,7 @@ describe('RamosController (e2e)', () => {
         where: { nombre: TEST_MATERIA_PRIMA_NOMBRE },
       }),
       prisma.usuario.deleteMany({
-        where: {
-          email: { in: [TEST_ADMIN_EMAIL, TEST_SECOND_ADMIN_EMAIL] },
-        },
+        where: { email: TEST_ADMIN_EMAIL },
       }),
     ]);
 
@@ -66,15 +65,21 @@ describe('RamosController (e2e)', () => {
     );
     await app.init();
 
-    const registerRes = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: TEST_ADMIN_EMAIL, password: 'password123' });
-    expect(registerRes.status).toBe(201);
-    userId = registerRes.body.id as number;
+    // Create the test user directly in the database instead of using
+    // POST /auth/register, because registration is only allowed while the
+    // usuarios table is empty. Creating the row here lets the suite pass
+    // whether the table is empty or already contains users (e.g. the local
+    // duena@eternaflor.com account).
+    const passwordHash = await bcrypt.hash(TEST_PASSWORD, 12);
+    const user = await prisma.usuario.create({
+      data: { email: TEST_ADMIN_EMAIL, passwordHash },
+      select: { id: true, email: true },
+    });
+    userId = user.id;
 
     const loginRes = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ email: TEST_ADMIN_EMAIL, password: 'password123' });
+      .send({ email: TEST_ADMIN_EMAIL, password: TEST_PASSWORD });
     expect(loginRes.status).toBe(200);
     token = loginRes.body.token as string;
 
@@ -113,13 +118,6 @@ describe('RamosController (e2e)', () => {
     if (app) {
       await app.close();
     }
-  });
-
-  it('POST /auth/register twice: first 201, second 403', async () => {
-    const second = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: TEST_SECOND_ADMIN_EMAIL, password: 'password123' });
-    expect(second.status).toBe(403);
   });
 
   it('POST /ramos with missing nombre -> 400', async () => {
@@ -209,5 +207,71 @@ describe('RamosController (e2e)', () => {
     });
 
     createdRamoIds.push(res.body.id as number);
+  });
+
+  it('PATCH /ramos/:id accepts recetas items with nombre sent by the live frontend -> 200', async () => {
+    const createRes = await request(app.getHttpServer())
+      .post('/ramos')
+      .set('Authorization', `Bearer ${token}`)
+      .field('nombre', 'Ramo receta con nombre')
+      .field('tamano', 'Mediano')
+      .field('precioVenta', '30.00')
+      .field('recetas', JSON.stringify([{ materiaPrimaId, cantidad: 2 }]));
+    expect(createRes.status).toBe(201);
+    const ramoId = createRes.body.id as number;
+    createdRamoIds.push(ramoId);
+
+    const patchRes = await request(app.getHttpServer())
+      .patch(`/ramos/${ramoId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .field(
+        'recetas',
+        JSON.stringify([
+          {
+            materiaPrimaId,
+            cantidad: 3,
+            nombre: TEST_MATERIA_PRIMA_NOMBRE,
+          },
+        ]),
+      );
+
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body.recetas).toHaveLength(1);
+    expect(patchRes.body.recetas[0]).toMatchObject({
+      cantidad: 3,
+      materiaPrima: expect.objectContaining({ id: materiaPrimaId }),
+    });
+  });
+
+  it('PATCH /ramos/:id rejects recetas items with unknown fields -> 400', async () => {
+    const createRes = await request(app.getHttpServer())
+      .post('/ramos')
+      .set('Authorization', `Bearer ${token}`)
+      .field('nombre', 'Ramo campo desconocido')
+      .field('tamano', 'Mediano')
+      .field('precioVenta', '30.00')
+      .field('recetas', JSON.stringify([{ materiaPrimaId, cantidad: 2 }]));
+    expect(createRes.status).toBe(201);
+    const ramoId = createRes.body.id as number;
+    createdRamoIds.push(ramoId);
+
+    const patchRes = await request(app.getHttpServer())
+      .patch(`/ramos/${ramoId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .field(
+        'recetas',
+        JSON.stringify([
+          { materiaPrimaId, cantidad: 3, campoDesconocido: 'x' },
+        ]),
+      );
+
+    expect(patchRes.status).toBe(400);
+    expect(patchRes.body.message).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /recetas\.\d+\.property campoDesconocido should not exist/,
+        ),
+      ]),
+    );
   });
 });

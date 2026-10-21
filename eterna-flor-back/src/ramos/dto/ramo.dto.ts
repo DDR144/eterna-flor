@@ -98,6 +98,15 @@ export class RecetaItemDto {
   })
   @Transform(({ value }) => toNumber(value))
   cantidad: number;
+
+  // The currently deployed admin page sends `nombre` inside each receta
+  // when it builds an update request. The API ignores it, but with
+  // forbidNonWhitelisted enabled rejecting it breaks every ramo edit in
+  // production. Accepting this known, harmless field keeps edits working
+  // while truly undeclared fields still fail with 400.
+  @IsOptional()
+  @IsString()
+  nombre?: string;
 }
 
 export class CreateRamoDto {
