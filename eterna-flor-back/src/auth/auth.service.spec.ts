@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../common/services/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -10,15 +11,37 @@ jest.mock('bcrypt', () => ({
   compare: jest.fn(),
 }));
 
+type MockedAuthPrisma = {
+  usuario: {
+    count: jest.Mock<Promise<number>, []>;
+    findUnique: jest.Mock<
+      Promise<unknown>,
+      [args: Prisma.UsuarioFindUniqueArgs]
+    >;
+    create: jest.Mock<Promise<unknown>, [args: Prisma.UsuarioCreateArgs]>;
+  };
+  $transaction: jest.Mock<
+    Promise<unknown>,
+    [
+      callback: (tx: MockedAuthPrisma) => Promise<unknown>,
+      options?: { isolationLevel?: string },
+    ]
+  >;
+};
+
 describe('AuthService', () => {
   let service: AuthService;
 
-  const mockPrisma = {
+  const mockPrisma: MockedAuthPrisma = {
     usuario: {
-      count: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
+      count: jest.fn() as MockedAuthPrisma['usuario']['count'],
+      findUnique: jest.fn() as MockedAuthPrisma['usuario']['findUnique'],
+      create: jest.fn() as MockedAuthPrisma['usuario']['create'],
     },
+    $transaction: jest.fn(
+      (callback: (tx: MockedAuthPrisma) => Promise<unknown>) =>
+        callback(mockPrisma),
+    ) as MockedAuthPrisma['$transaction'],
   };
 
   const mockJwtService = {
@@ -35,6 +58,10 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    mockPrisma.$transaction.mockImplementation(
+      (callback: (tx: MockedAuthPrisma) => Promise<unknown>) =>
+        callback(mockPrisma),
+    );
   });
 
   afterEach(() => {
@@ -77,6 +104,10 @@ describe('AuthService', () => {
         data: { email: 'admin@example.com', passwordHash: 'hashed-password' },
         select: { id: true, email: true, createdAt: true },
       });
+      expect(mockPrisma.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        { isolationLevel: 'Serializable' },
+      );
     });
 
     it('should store a bcrypt hash, not the plaintext password', async () => {
@@ -98,6 +129,20 @@ describe('AuthService', () => {
         },
         select: { id: true, email: true, createdAt: true },
       });
+    });
+
+    it('should map a Prisma serialization conflict (P2034) to ForbiddenException', async () => {
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
+      mockPrisma.$transaction.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('Serialization failure', {
+          code: 'P2034',
+          clientVersion: Prisma.prismaVersion.client,
+        }),
+      );
+
+      await expect(
+        service.registerAdmin('admin@example.com', 'password'),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 

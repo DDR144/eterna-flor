@@ -1,6 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { Prisma, TamanoRamo } from '@prisma/client';
 import { PrismaService } from '../common/services/prisma.service';
-import { TamanoRamo } from '@prisma/client';
+
+function isTamanoRamo(value: string): value is TamanoRamo {
+  return Object.values(TamanoRamo).includes(value as TamanoRamo);
+}
 
 @Controller('catalogo')
 export class CatalogoController {
@@ -8,12 +12,12 @@ export class CatalogoController {
 
   @Get()
   async findAll(@Query('tamano') tamano?: string) {
-    const where: any = {
+    const where: Prisma.RamoWhereInput = {
       activo: true,
       stock: { gt: 0 },
     };
 
-    if (tamano && Object.values(TamanoRamo).includes(tamano as TamanoRamo)) {
+    if (tamano && isTamanoRamo(tamano)) {
       where.tamano = tamano;
     }
 

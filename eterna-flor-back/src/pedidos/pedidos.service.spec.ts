@@ -1,23 +1,48 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Prisma } from '@prisma/client';
 import { PedidosService } from './pedidos.service';
 import { PrismaService } from '../common/services/prisma.service';
+
+type MockedPedidosPrisma = {
+  pedido: {
+    findMany: jest.Mock<Promise<unknown>, [args?: Prisma.PedidoFindManyArgs]>;
+    findUnique: jest.Mock<
+      Promise<unknown>,
+      [args: Prisma.PedidoFindUniqueArgs]
+    >;
+    create: jest.Mock<Promise<unknown>, [args: Prisma.PedidoCreateArgs]>;
+    update: jest.Mock<Promise<unknown>, [args: Prisma.PedidoUpdateArgs]>;
+    delete: jest.Mock<Promise<unknown>, [args: Prisma.PedidoDeleteArgs]>;
+  };
+  ramo: {
+    findUnique: jest.Mock<Promise<unknown>, [args: Prisma.RamoFindUniqueArgs]>;
+    update: jest.Mock<Promise<unknown>, [args: Prisma.RamoUpdateArgs]>;
+  };
+  $transaction: jest.Mock<
+    Promise<unknown>,
+    [callback: (tx: MockedPedidosPrisma) => Promise<unknown>]
+  >;
+};
 
 describe('PedidosService', () => {
   let service: PedidosService;
 
-  const mockPrisma = {
+  const mockPrisma: MockedPedidosPrisma = {
     pedido: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      findMany: jest.fn() as MockedPedidosPrisma['pedido']['findMany'],
+      findUnique: jest.fn() as MockedPedidosPrisma['pedido']['findUnique'],
+      create: jest.fn() as MockedPedidosPrisma['pedido']['create'],
+      update: jest.fn() as MockedPedidosPrisma['pedido']['update'],
+      delete: jest.fn() as MockedPedidosPrisma['pedido']['delete'],
     },
     ramo: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: jest.fn() as MockedPedidosPrisma['ramo']['findUnique'],
+      update: jest.fn() as MockedPedidosPrisma['ramo']['update'],
     },
-    $transaction: jest.fn((callback) => callback(mockPrisma)),
+    $transaction: jest.fn(
+      (callback: (tx: MockedPedidosPrisma) => Promise<unknown>) =>
+        callback(mockPrisma),
+    ) as MockedPedidosPrisma['$transaction'],
   };
 
   beforeEach(async () => {
@@ -29,7 +54,6 @@ describe('PedidosService', () => {
     }).compile();
 
     service = module.get<PedidosService>(PedidosService);
-    (service as any).prisma = mockPrisma;
   });
 
   afterEach(() => {
@@ -75,13 +99,11 @@ describe('PedidosService', () => {
       ];
       mockPrisma.pedido.findMany.mockResolvedValue(mockPedidos);
 
-      const result = await service.findAll({ cliente: 'Juan' });
+      await service.findAll({ cliente: 'Juan' });
 
       expect(mockPrisma.pedido.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({
-            clienteNombre: { contains: 'Juan' },
-          }),
+          where: { clienteNombre: { contains: 'Juan' } },
         }),
       );
     });

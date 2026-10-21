@@ -4,6 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../common/services/prisma.service';
 import { LoginDto } from './dto/login.dto';
@@ -56,18 +57,37 @@ export class AuthService {
   }
 
   async registerAdmin(email: string, password: string) {
-    const existingUserCount = await this.prisma.usuario.count();
-
-    if (existingUserCount > 0) {
-      throw new ForbiddenException(
-        'El registro de administrador no está disponible',
-      );
-    }
-
     const passwordHash = await bcrypt.hash(password, 12);
-    return this.prisma.usuario.create({
-      data: { email, passwordHash },
-      select: { id: true, email: true, createdAt: true },
-    });
+
+    try {
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const existingUserCount = await tx.usuario.count();
+
+          if (existingUserCount > 0) {
+            throw new ForbiddenException(
+              'El registro de administrador no está disponible',
+            );
+          }
+
+          return tx.usuario.create({
+            data: { email, passwordHash },
+            select: { id: true, email: true, createdAt: true },
+          });
+        },
+        { isolationLevel: 'Serializable' },
+      );
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2034'
+      ) {
+        throw new ForbiddenException(
+          'El registro de administrador no está disponible',
+        );
+      }
+
+      throw error;
+    }
   }
 }

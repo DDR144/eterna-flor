@@ -16,7 +16,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     user: TUser,
   ): TUser {
     if (err || !user) {
-      throw err || new NestUnauthorizedException('Acceso no autorizado');
+      if (err instanceof Error) {
+        throw err;
+      }
+      throw new NestUnauthorizedException('Acceso no autorizado');
     }
     return user;
   }

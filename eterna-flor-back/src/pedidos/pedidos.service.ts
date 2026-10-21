@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/services/prisma.service';
 import { CreatePedidoDto, UpdatePedidoDto } from './dto/pedido.dto';
 import { EstadoPedido } from '@prisma/client';
@@ -12,7 +13,7 @@ export class PedidosService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(filtros?: { cliente?: string; estado?: EstadoPedido }) {
-    const where: any = {};
+    const where: Prisma.PedidoWhereInput = {};
     if (filtros?.cliente) {
       where.clienteNombre = { contains: filtros.cliente };
     }

@@ -9,10 +9,22 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
+import { EstadoPedido } from '@prisma/client';
 import { PedidosService } from './pedidos.service';
 import { CreatePedidoDto, UpdatePedidoDto } from './dto/pedido.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+
+function parseEstadoPedido(value?: string): EstadoPedido | undefined {
+  if (!value) {
+    return undefined;
+  }
+  if (Object.values(EstadoPedido).includes(value as EstadoPedido)) {
+    return value as EstadoPedido;
+  }
+  throw new BadRequestException(`Estado de pedido inválido: ${value}`);
+}
 
 @Controller('pedidos')
 @UseGuards(JwtAuthGuard)
@@ -24,7 +36,7 @@ export class PedidosController {
     @Query('cliente') cliente?: string,
     @Query('estado') estado?: string,
   ) {
-    return this.service.findAll({ cliente, estado: estado as any });
+    return this.service.findAll({ cliente, estado: parseEstadoPedido(estado) });
   }
 
   @Get('pendientes')
