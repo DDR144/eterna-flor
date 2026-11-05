@@ -15,15 +15,20 @@ import { EstadoPedido } from '@prisma/client';
 import { PedidosService } from './pedidos.service';
 import { CreatePedidoDto, UpdatePedidoDto } from './dto/pedido.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { parseEnumLabel } from '../common/enum-label';
+
+const ESTADOS = Object.values(EstadoPedido);
 
 function parseEstadoPedido(value?: string): EstadoPedido | undefined {
   if (!value) {
     return undefined;
   }
-  if (Object.values(EstadoPedido).includes(value as EstadoPedido)) {
-    return value as EstadoPedido;
+
+  const estado = parseEnumLabel(ESTADOS, value);
+  if (!estado) {
+    throw new BadRequestException(`Estado de pedido inválido: ${value}`);
   }
-  throw new BadRequestException(`Estado de pedido inválido: ${value}`);
+  return estado;
 }
 
 @Controller('pedidos')
