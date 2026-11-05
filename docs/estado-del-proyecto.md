@@ -57,6 +57,12 @@ Viven en el panel de Render, nunca en el repositorio. El contrato completo está
 | `1a9019c` + `11c97be` | DTOs validados en ramos, filtro de excepciones de Prisma, compatibilidad con el panel desplegado |
 | `067d7cd` | Lint de 22 errores/51 warnings a **0/0**, y carrera del registro cerrada con transacción serializable |
 | `cc24c88` | El filtro por tamaño del catálogo aplica las etiquetas acentuadas que envía la página |
+| `b95faf4` | Documento de estado y traspaso (este archivo) |
+| `9b8867f` | Seed de datos locales (`pnpm run seed`) y guard de base movido a `src/common/local-database.ts` |
+| `06d6d69` | La API acepta la etiqueta de estado que guarda la base (`En preparación`), con `src/common/enum-label.ts` |
+| `57063de` | La web pinta las etiquetas acentuadas: `lib/tamanos.ts` en el catálogo y el admin de ramos |
+
+Verificado en producción el 2026-11-05: `GET /catalogo?tamano=Pequeño` y `?tamano=Pequeno` devuelven ambos el ramo, y el texto visible junto a la tarjeta dice **Pequeño**. La API sigue devolviendo el nombre de miembro (`Pequeno`) en el JSON; la traducción a etiqueta ocurre en el frontend, a propósito.
 
 Además, de otras sesiones: **seed de datos locales** (`pnpm run seed`, usuario `admin@eternaflor.local` / `local1234`) y **Cloudinary configurado y verificado**.
 
@@ -64,14 +70,15 @@ Además, de otras sesiones: **seed de datos locales** (`pnpm run seed`, usuario 
 
 | Pendiente | Depende de |
 |---|---|
-| Definir el destino de `feat/ui-design-system` (5 commits, ~1035 líneas sin revisar) | Decisión del usuario. Bloquea todo trabajo de frontend |
-| Los valores de enum se muestran crudos: la API devuelve el **nombre de miembro** (`Pequeno`, `EnPreparacion`) y el catálogo público y el admin de ramos lo pintan tal cual | Frontend. El cliente vería "Pequeno" sin ñ |
-| `GET /pedidos?estado=En preparación` devuelve 400: solo acepta nombres de miembro | Nadie lo usa hoy; decidir si se normaliza |
+| Definir el destino de `feat/ui-design-system` (5 commits, ~1035 líneas sin revisar) | Decisión del usuario. Bloquea el resto del trabajo de frontend |
 | El prefijo de limpieza `'Ramo '` del e2e es demasiado genérico: borraría cualquier ramo hecho a mano que empiece así | Cualquiera. Riesgo real |
 | Limpiar el ramo de prueba `ramo one` (id 1) de la base de producción: aparece en el catálogo público | Usuario |
 | Monitor externo (UptimeRobot, cada 5 min a `/health`) | Usuario, 5 minutos |
-| Runbook definitivo y alineación de la documentación vieja | Nadie |
+| `.agents/`, `.claude/` y `skills-lock.json` están sin trackear en la raíz y ensucian el estado del repo | Cualquiera. Dos líneas en `.gitignore` |
+| Alinear la documentación vieja: `AGENTS.md` y `docs/architecture/*` describen una infraestructura que no existe | Nadie |
 | Paginación | **Recomendación: no hacerla.** Una sola usuaria, pocos datos, y cambiaría el contrato de una API en vivo |
+
+Resuelto desde la primera versión de este documento: los valores de enum ya se muestran con acento (`57063de`), `GET /pedidos?estado=En preparación` ya se acepta (`06d6d69`), y Cloudinary está configurado.
 
 ## 7. Trampas conocidas
 
