@@ -25,6 +25,7 @@ pnpm prisma generate   # generate client from schema
 pnpm prisma migrate dev --name init  # create migration
 pnpm prisma db push    # push schema to DB
 pnpm prisma studio    # visual DB viewer
+pnpm run seed          # datos de prueba locales: ramos de los 4 tamaños, pedidos de los 4 estados, materias primas con y sin alerta
 ```
 
 ### Frontend
@@ -45,4 +46,6 @@ pnpm lint     # eslint-config-next
 - Frontend uses Tailwind CSS 4 with `@tailwindcss/postcss` (no `tailwind.config.js`).
 - No root `package.json`; each package is independent. Run `pnpm install` in each package.
 - No `node_modules` committed.
+- `pnpm run seed` y los e2e se niegan a correr si `DATABASE_URL` no apunta a localhost, 127.0.0.1 o ::1 (guard en `src/common/local-database.ts`). Ambos borran datos: nunca deben apuntar a Neon.
+- El seed solo borra las filas cuyo nombre empieza por `[prueba] `, `Materia prima de prueba: ` o `Cliente de prueba `, así que se puede repetir sin tocar datos hechos a mano. Crea además el usuario local `admin@eternaflor.local` / `local1234`.
 - Database requires `DATABASE_URL` in `eterna-flor-back/.env`.
