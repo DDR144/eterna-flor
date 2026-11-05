@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
+import { TAMANOS, labelTamano } from '@/lib/tamanos';
 
 interface RecetaItem {
   materiaPrimaId: number;
@@ -25,8 +26,6 @@ interface Ramo {
     materiaPrima: { id: number; nombre: string };
   }>;
 }
-
-const TAMANOS = ['Pequeño', 'Mediano', 'Grande', 'Jumbo'];
 
 export default function RamosPage() {
   const [ramos, setRamos] = useState<Ramo[]>([]);
@@ -210,7 +209,7 @@ export default function RamosPage() {
                     className="input-field"
                   >
                     {TAMANOS.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>{labelTamano(t)}</option>
                     ))}
                   </select>
                 </div>
@@ -348,7 +347,7 @@ export default function RamosPage() {
                 </div>
               )}
               <span className="absolute top-3 right-3 text-xs bg-white/90 backdrop-blur text-stone-700 px-2.5 py-1 rounded-full font-medium">
-                {ramo.tamano}
+                {labelTamano(ramo.tamano)}
               </span>
             </div>
             <div className="p-4">

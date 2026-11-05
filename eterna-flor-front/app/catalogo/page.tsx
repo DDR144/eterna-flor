@@ -1,3 +1,5 @@
+import { TAMANOS, labelTamano } from '@/lib/tamanos';
+
 interface Ramo {
   id: number;
   nombre: string;
@@ -26,8 +28,6 @@ export default async function CatalogoPage({
 
   const WHATSAPP_NUMERO = '930190189';
   const MENSAJE_BASE = 'Hola, me interesa uno de los Ramos';
-
-  const TAMANOS = ['Pequeño', 'Mediano', 'Grande', 'Jumbo'];
 
   return (
     <div
@@ -81,7 +81,7 @@ export default async function CatalogoPage({
                 borderColor: tamano === t ? '#3A2747' : '#9E82B5',
               }}
             >
-              {t}
+              {labelTamano(t)}
             </a>
           ))}
         </div>
@@ -139,7 +139,7 @@ export default async function CatalogoPage({
                       backdropFilter: 'blur(4px)',
                     }}
                   >
-                    {ramo.tamano}
+                    {labelTamano(ramo.tamano)}
                   </span>
                 </div>
 
@@ -162,7 +162,7 @@ export default async function CatalogoPage({
 
                     {/* Single accent — Tertiary #FF8AB8 per Pastel Candy rule */}
                     <a
-                      href={`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(MENSAJE_BASE + ': ' + ramo.nombre + ' (' + ramo.tamano + ')')}`}
+                      href={`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(MENSAJE_BASE + ': ' + ramo.nombre + ' (' + labelTamano(ramo.tamano) + ')')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.97]"
