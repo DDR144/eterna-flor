@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
+import { money } from '@/lib/format';
 import { TAMANOS, labelTamano } from '@/lib/tamanos';
 import {
   Badge,
@@ -36,12 +37,6 @@ interface Ramo {
     materiaPrima: { id: number; nombre: string };
   }>;
 }
-
-const money = new Intl.NumberFormat('es-PE', {
-  style: 'currency',
-  currency: 'PEN',
-  minimumFractionDigits: 2,
-});
 
 export default function RamosPage() {
   const [ramos, setRamos] = useState<Ramo[]>([]);
@@ -477,13 +472,13 @@ export default function RamosPage() {
                   <div className="flex items-baseline justify-between gap-2">
                     <dt className="text-ink-muted">Precio</dt>
                     <dd className="numeric font-semibold text-ink">
-                      {money.format(ramo.precioVenta)}
+                      {money(ramo.precioVenta)}
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
                     <dt className="text-ink-muted">Costo</dt>
                     <dd className="numeric text-ink-muted">
-                      {money.format(ramo.costoCalculado)}
+                      {money(ramo.costoCalculado)}
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
@@ -493,7 +488,7 @@ export default function RamosPage() {
                         ramo.margen > 0 ? 'text-success' : 'text-danger'
                       }`}
                     >
-                      {money.format(ramo.margen)}
+                      {money(ramo.margen)}
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
