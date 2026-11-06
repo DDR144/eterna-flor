@@ -1,4 +1,11 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+/**
+ * Base de la API. Se exporta para que ninguna pantalla repita la variable de
+ * entorno sin respaldo: `process.env.NEXT_PUBLIC_API_URL` sin fallback produce
+ * la URL literal "undefined/..." cuando no hay archivo de entorno, y el fallo
+ * se vuelve invisible porque el `catch` lo convierte en estado vacío.
+ */
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface FetchOptions extends RequestInit {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';

@@ -1,4 +1,5 @@
 import { Badge, Card, EmptyState } from '@/components/ui';
+import { API_URL } from '@/lib/api';
 import { money } from '@/lib/format';
 import { TAMANOS, labelTamano } from '@/lib/tamanos';
 
@@ -11,7 +12,6 @@ interface Ramo {
 }
 
 async function getRamos(tamano?: string): Promise<Ramo[]> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   const url = tamano
     ? `${API_URL}/catalogo?tamano=${tamano}`
     : `${API_URL}/catalogo`;

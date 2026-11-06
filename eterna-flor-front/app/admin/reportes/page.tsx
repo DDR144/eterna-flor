@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { API_URL } from '@/lib/api';
 import { money, percent } from '@/lib/format';
 import { labelTamano } from '@/lib/tamanos';
 import {
@@ -69,13 +70,13 @@ export default function ReportesPage() {
       const token = getToken();
       try {
         const [resumenRes, pendientesRes, masVendidosRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/resumen?periodo=${periodo}`, {
+          fetch(`${API_URL}/reportes/resumen?periodo=${periodo}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/pendientes`, {
+          fetch(`${API_URL}/reportes/pendientes`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/mas-vendidos?periodo=${periodo}`, {
+          fetch(`${API_URL}/reportes/mas-vendidos?periodo=${periodo}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
         ]);
@@ -114,7 +115,7 @@ export default function ReportesPage() {
     setExportError('');
     const token = getToken();
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/exportar`, {
+      const response = await fetch(`${API_URL}/reportes/exportar`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const blob = await response.blob();

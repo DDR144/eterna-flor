@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { API_URL } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Button, Icon, Spinner } from '@/components/ui';
 import type { IconName } from '@/components/ui';
@@ -53,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const active = matchNav(pathname);
 
   async function handleLogout() {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+    await fetch(`${API_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
