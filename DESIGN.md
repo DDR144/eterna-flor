@@ -38,7 +38,7 @@ spacing:
 components:
   button-primary:
     backgroundColor: "{colors.tertiary}"
-    textColor: "{colors.on-primary}"
+    textColor: "{colors.primary}"
     rounded: "{rounded.md}"
     padding: 12px 20px
   card:
@@ -56,7 +56,7 @@ A candy-counter palette with soft pinks, mint, and butter-yellow. Rounded everyt
 The palette is built around high-contrast neutrals and a single accent that drives interaction.
 
 - **Primary (`#3A2747`):** Headlines and core text.
-- **Secondary (`#9E82B5`):** Borders, captions, and metadata.
+- **Secondary (`#9E82B5`):** Borders and decorative fills. **Never text**: it reaches only 2.9:1 on Neutral and 2.7:1 on the surface, below the 4.5:1 that WCAG AA requires. Secondary text uses `ink-muted` (`#6E5A7A`, 5.7:1).
 - **Tertiary (`#FF8AB8`):** The sole driver for interaction. Reserve it.
 - **Neutral (`#FFF3F7`):** The page foundation.
 
@@ -71,5 +71,7 @@ The palette is built around high-contrast neutrals and a single accent that driv
 
 - **Do** use Tertiary for exactly one action per screen.
 - **Do** let Neutral carry the composition — negative space is a feature.
+- **Do** keep every text/background pair at 4.5:1 or better. The primary button pairs Tertiary with Primary as text (`6.1:1`); white on Tertiary is `2.2:1` and is not allowed.
 - **Don't** introduce gradients. This system is flat on purpose.
 - **Don't** mix Tertiary with alternate accents; the single-accent rule is load-bearing.
+- **Don't** use Secondary (`#9E82B5`) for text. It is a border and fill color only.
