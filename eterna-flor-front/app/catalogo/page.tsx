@@ -15,9 +15,14 @@ async function getRamos(tamano?: string): Promise<Ramo[]> {
   const url = tamano
     ? `${API_URL}/catalogo?tamano=${tamano}`
     : `${API_URL}/catalogo`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    // La API caída no debe tumbar el catálogo: el cliente ve el estado vacío.
+    return [];
+  }
 }
 
 const WHATSAPP_NUMERO = '930190189';
