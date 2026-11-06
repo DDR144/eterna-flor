@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "02-candy-counter.html",
+  "handoffs": {
+    "02-candy-counter.html": {
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-06T10:09:44.080Z",
+      "startedAt": "2026-11-06T10:09:58.109Z",
+      "implementedAt": null,
+      "note": "Unificando tokens Pastel Candy con contrastes corregidos en globals.css, luego catálogo, login y panel admin"
+    }
+  }
+}

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 — Botanical Editorial · EternaFlor</title>
+<style>
+  :root{
+    --paper:#FBF8F3;
+    --paper-deep:#F4EFE5;
+    --ink:#241C15;
+    --ink-soft:#6B5F52;
+    --rule:#E0D8CA;
+    --rule-strong:#C9BFAE;
+    --accent:#9B2C48;
+    --sage:#5F6F52;
+    --serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--sans);font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,p,ul,ol,dl,dd,figure{margin:0;}
+  ul,ol{padding:0;list-style:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  /* direction ribbon */
+  .ribbon{
+    background:var(--ink);color:var(--paper);
+    padding:14px 48px;display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;
+  }
+  .ribbon strong{font-family:var(--serif);font-size:1rem;font-weight:600;letter-spacing:0.01em;}
+  .ribbon span{font-size:0.8125rem;color:#C9BFAE;}
+  .ribbon em{font-style:normal;color:#E8C9A0;}
+
+  .surface-tag{
+    padding:10px 48px;background:var(--paper-deep);
+    border-bottom:1px solid var(--rule);
+    font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--ink-soft);display:flex;gap:16px;
+  }
+  .surface-tag b{color:var(--accent);font-weight:700;}
+
+  /* ══════════ TIENDA ══════════ */
+  .masthead{padding:44px 48px 28px;border-bottom:1px solid var(--rule);}
+  .masthead-top{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;}
+  .eyebrow{
+    font-size:0.6875rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;
+  }
+  .wordmark{
+    font-family:var(--serif);font-size:3.5rem;font-weight:400;line-height:1;
+    letter-spacing:-0.015em;
+  }
+  .wordmark i{font-style:italic;color:var(--accent);}
+  .masthead p.lede{
+    font-family:var(--serif);font-size:1.125rem;color:var(--ink-soft);
+    max-width:38ch;line-height:1.45;font-style:italic;
+  }
+  .masthead-meta{
+    display:flex;gap:28px;font-size:0.75rem;color:var(--ink-soft);
+    letter-spacing:0.08em;text-transform:uppercase;font-weight:600;
+    margin-top:24px;padding-top:16px;border-top:1px solid var(--rule);
+  }
+  .masthead-meta span{display:flex;align-items:center;gap:8px;}
+  .masthead-meta span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--sage);}
+
+  .filters{
+    display:flex;gap:0;padding:0 48px;border-bottom:1px solid var(--rule);
+    align-items:stretch;overflow-x:auto;
+  }
+  .filters a{
+    padding:16px 22px 14px;font-size:0.8125rem;font-weight:600;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--ink-soft);text-decoration:none;
+    border-bottom:2px solid transparent;white-space:nowrap;transition:color 160ms;
+  }
+  .filters a:hover{color:var(--ink);}
+  .filters a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--accent);}
+  .filters .count{
+    font-family:var(--mono);font-size:0.6875rem;color:var(--ink-soft);
+    margin-left:8px;vertical-align:super;
+  }
+
+  .catalog{padding:40px 48px 56px;}
+  .catalog-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding-bottom:14px;border-bottom:1px solid var(--rule-strong);margin-bottom:32px;
+  }
+  .catalog-head h2{
+    font-family:var(--serif);font-size:1.375rem;font-weight:600;letter-spacing:-0.01em;
+  }
+  .catalog-head span{font-size:0.75rem;color:var(--ink-soft);letter-spacing:0.06em;}
+
+  .pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 32px;}
+  .piece figure{
+    border:1px solid var(--rule);background:#fff;
+    aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;position:relative;
+  }
+  .piece figure svg{width:100%;height:100%;}
+  .piece .plate{
+    position:absolute;top:0;left:0;background:var(--paper);
+    padding:5px 9px;font-family:var(--mono);font-size:0.625rem;
+    letter-spacing:0.1em;color:var(--ink-soft);border-right:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+  }
+  .piece h3{
+    font-family:var(--serif);font-size:1.25rem;font-weight:600;margin-top:16px;
+    letter-spacing:-0.01em;
+  }
+  .piece .meta-line{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:6px;padding-bottom:12px;border-bottom:1px solid var(--rule);
+  }
+  .piece .size{
+    font-size:0.6875rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--sage);
+  }
+  .piece .price{
+    font-family:var(--mono);font-size:0.9375rem;font-variant-numeric:tabular-nums;
+    letter-spacing:-0.01em;
+  }
+  .piece .ask{
+    display:inline-flex;align-items:center;gap:8px;margin-top:12px;
+    font-size:0.8125rem;font-weight:600;color:var(--accent);text-decoration:none;
+    border-bottom:1px solid currentColor;padding-bottom:2px;transition:gap 160ms;
+  }
+  .piece .ask:hover{gap:14px;}
+  .piece .ask::after{content:"→";font-family:var(--sans);}
+
+  .catalog-foot{
+    margin-top:44px;padding-top:24px;border-top:1px solid var(--rule-strong);
+    display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    font-size:0.8125rem;color:var(--ink-soft);
+  }
+  .catalog-foot a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor;}
+
+  /* ══════════ PANEL ══════════ */
+  .panel{display:grid;grid-template-columns:216px 1fr;min-height:900px;border-top:1px solid var(--rule-strong);}
+  .panel-nav{
+    border-right:1px solid var(--rule);padding:28px 0;background:var(--paper-deep);
+  }
+  .panel-nav .brand{
+    font-family:var(--serif);font-size:1.0625rem;font-weight:600;
+    padding:0 24px 20px;border-bottom:1px solid var(--rule);margin-bottom:20px;
+    letter-spacing:-0.01em;
+  }
+  .panel-nav .brand small{
+    display:block;font-family:var(--sans);font-size:0.625rem;font-weight:700;
+    letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-soft);margin-top:6px;
+  }
+  .panel-nav h2{
+    font-size:0.625rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--ink-soft);padding:0 24px;margin-bottom:10px;
+  }
+  .panel-nav ul{margin-bottom:24px;}
+  .panel-nav li a{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 24px;font-size:0.875rem;text-decoration:none;color:var(--ink);
+    border-left:2px solid transparent;
+  }
+  .panel-nav li a:hover{background:#EFE9DC;}
+  .panel-nav li a[aria-current="page"]{
+    border-left-color:var(--accent);background:#fff;font-weight:600;
+  }
+  .panel-nav li a .n{font-family:var(--mono);font-size:0.75rem;color:var(--ink-soft);}
+  .panel-nav .nav-foot{
+    padding:16px 24px 0;border-top:1px solid var(--rule);margin:0 24px;
+    font-size:0.8125rem;display:grid;gap:8px;
+  }
+  .panel-nav .nav-foot a{color:var(--ink-soft);text-decoration:none;}
+  .panel-nav .nav-foot a:hover{color:var(--accent);}
+
+  .panel-main{padding:28px 40px 48px;background:var(--paper);}
+  .panel-bar{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:16px;border-bottom:1px solid var(--rule-strong);margin-bottom:28px;
+    gap:24px;flex-wrap:wrap;
+  }
+  .panel-bar h1{
+    font-family:var(--serif);font-size:1.875rem;font-weight:600;letter-spacing:-0.015em;
+    line-height:1.1;
+  }
+  .panel-bar .sub{font-size:0.8125rem;color:var(--ink-soft);margin-top:6px;}
+  .panel-bar .who{
+    font-size:0.75rem;color:var(--ink-soft);text-align:right;line-height:1.4;
+  }
+  .panel-bar .who b{display:block;color:var(--ink);font-weight:600;}
+
+  .btn{
+    font-family:var(--sans);font-size:0.8125rem;font-weight:600;cursor:pointer;
+    padding:9px 18px;border-radius:2px;border:1px solid var(--ink);
+    background:var(--ink);color:var(--paper);transition:background 160ms;
+    letter-spacing:0.02em;
+  }
+  .btn:hover{background:#3D3125;}
+  .btn-quiet{background:transparent;color:var(--ink);border-color:var(--rule-strong);}
+  .btn-quiet:hover{background:var(--paper-deep);border-color:var(--ink);}
+
+  .kpis{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);
+    margin-bottom:32px;
+  }
+  .kpi{padding:18px 20px;border-right:1px solid var(--rule);}
+  .kpi:last-child{border-right:0;}
+  .kpi dt{
+    font-size:0.625rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:8px;
+  }
+  .kpi dd{
+    font-family:var(--mono);font-size:1.5rem;font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em;
+  }
+  .kpi dd small{font-size:0.75rem;color:var(--ink-soft);letter-spacing:0;}
+  .kpi.neg dd{color:var(--accent);}
+
+  table{width:100%;border-collapse:collapse;font-size:0.875rem;}
+  caption{
+    text-align:left;font-family:var(--serif);font-size:1.0625rem;font-weight:600;
+    padding-bottom:12px;
+  }
+  th{
+    text-align:left;font-size:0.625rem;font-weight:700;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--ink-soft);
+    padding:8px 12px;border-bottom:1px solid var(--rule-strong);
+  }
+  th:first-child,td:first-child{padding-left:0;}
+  th:last-child,td:last-child{padding-right:0;text-align:right;}
+  td{padding:13px 12px;border-bottom:1px solid var(--rule);vertical-align:baseline;}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;letter-spacing:-0.01em;}
+  th.num{text-align:right;}
+  .name{font-weight:600;}
+  .name em{
+    font-style:normal;display:block;font-weight:400;font-size:0.75rem;
+    color:var(--ink-soft);margin-top:2px;
+  }
+  .state{display:inline-flex;align-items:center;gap:7px;font-size:0.75rem;font-weight:600;}
+  .state::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .s-ok{color:var(--sage);}
+  .s-warn{color:#8A5A16;}
+  .s-bad{color:var(--accent);}
+  .s-idle{color:var(--ink-soft);}
+  .row-actions{display:flex;gap:14px;justify-content:flex-end;font-size:0.8125rem;}
+  .row-actions a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--rule-strong);}
+  .row-actions a:hover{color:var(--accent);border-color:currentColor;}
+
+  .panel-note{
+    margin-top:32px;padding:18px 22px;border-left:2px solid var(--accent);
+    background:#fff;font-size:0.8125rem;color:var(--ink-soft);max-width:70ch;
+  }
+  .panel-note b{color:var(--ink);display:block;font-size:0.875rem;margin-bottom:4px;}
+
+  .footnote{
+    padding:22px 48px 40px;border-top:1px solid var(--rule);
+    font-size:0.75rem;color:var(--ink-soft);line-height:1.6;max-width:96ch;
+  }
+  .footnote b{color:var(--ink);}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:0.001ms!important;transition-duration:0.001ms!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <strong>01 · Botanical Editorial</strong>
+  <span><em>Estrategia:</em> catálogo de autor. Tipografía serif de alto contraste, filetes finos en lugar de tarjetas con sombra, precio y estado como datos, no como decoración.</span>
+  <span><em>Tradeoff:</em> la marca se siente cuidada y cara; el escaneo rápido es más lento y el panel pierde la familiaridad de un dashboard.</span>
+</div>
+
+<!-- ══════════════════ TIENDA ══════════════════ -->
+<div class="surface-tag"><b>Superficie 1</b> Tienda pública · /catalogo</div>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <div>
+      <p class="eyebrow">Ramos artificiales · Hechos a mano</p>
+      <p class="wordmark">Eterna<i>Flor</i></p>
+    </div>
+    <p class="lede">Arreglos que no se marchitan, armados pieza por pieza en nuestro taller.</p>
+  </div>
+  <div class="masthead-meta">
+    <span>Lima, Perú</span>
+    <span>Pedidos por WhatsApp</span>
+    <span>Entrega en 48 h</span>
+    <span>4 tamaños</span>
+  </div>
+</header>
+
+<nav class="filters" aria-label="Filtrar por tamaño">
+  <a href="#todos" aria-current="true">Todos <span class="count">06</span></a>
+  <a href="#pequeno">Pequeño <span class="count">02</span></a>
+  <a href="#mediano">Mediano <span class="count">02</span></a>
+  <a href="#grande">Grande <span class="count">01</span></a>
+  <a href="#jumbo">Jumbo <span class="count">01</span></a>
+</nav>
+
+<main class="catalog">
+  <div class="catalog-head">
+    <h2>Colección 2026</h2>
+    <span>06 piezas disponibles</span>
+  </div>
+
+  <div class="pieces">
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 01</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Aurora: rosas de tela color marfil y salvia">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#5F6F52" stroke-width="1.4" fill="none" opacity="0.9">
+            <path d="M100 205 L100 120"/><path d="M100 165 L72 138"/><path d="M100 150 L130 124"/>
+          </g>
+          <g fill="#E8DCC8" stroke="#C9BFAE" stroke-width="1">
+            <circle cx="100" cy="104" r="22"/><circle cx="76" cy="132" r="16"/><circle cx="128" cy="120" r="18"/>
+          </g>
+          <g fill="none" stroke="#9B2C48" stroke-width="0.9" opacity="0.55">
+            <circle cx="100" cy="104" r="12"/><circle cx="76" cy="132" r="8"/><circle cx="128" cy="120" r="9"/>
+          </g>
+          <g fill="#5F6F52" opacity="0.55">
+            <ellipse cx="60" cy="168" rx="15" ry="6" transform="rotate(-28 60 168)"/>
+            <ellipse cx="142" cy="160" rx="15" ry="6" transform="rotate(24 142 160)"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Aurora</h3>
+      <div class="meta-line">
+        <span class="size">Grande</span>
+        <span class="price">S/ 185.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 02</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Jardín Secreto: peonías rosadas y follaje profundo">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#4C5A42" stroke-width="1.4" fill="none">
+            <path d="M100 208 L100 128"/><path d="M100 170 L74 146"/><path d="M100 158 L128 136"/>
+          </g>
+          <g fill="#E5B9C0" stroke="#B07A88" stroke-width="1">
+            <circle cx="100" cy="110" r="24"/><circle cx="72" cy="138" r="15"/><circle cx="130" cy="130" r="17"/>
+          </g>
+          <g fill="none" stroke="#9B2C48" stroke-width="0.9" opacity="0.5">
+            <circle cx="100" cy="110" r="13"/><circle cx="72" cy="138" r="7"/>
+          </g>
+          <g fill="#4C5A42" opacity="0.5">
+            <ellipse cx="58" cy="176" rx="16" ry="6" transform="rotate(-30 58 176)"/>
+            <ellipse cx="144" cy="172" rx="14" ry="6" transform="rotate(28 144 172)"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Jardín Secreto</h3>
+      <div class="meta-line">
+        <span class="size">Mediano</span>
+        <span class="price">S/ 95.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 03</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Campo Dorado: girasoles de tela y trigo seco">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#5F6F52" stroke-width="1.4" fill="none">
+            <path d="M100 206 L100 130"/><path d="M100 168 L76 150"/>
+          </g>
+          <g fill="#E8C9A0" stroke="#B08A52" stroke-width="1">
+            <circle cx="100" cy="112" r="21"/><circle cx="74" cy="140" r="14"/>
+          </g>
+          <g fill="#7A6236" opacity="0.85">
+            <circle cx="100" cy="112" r="8"/><circle cx="74" cy="140" r="5"/>
+          </g>
+          <g stroke="#B08A52" stroke-width="0.8" opacity="0.7" fill="none">
+            <path d="M128 150 L138 122"/><path d="M132 152 L146 132"/><path d="M124 148 L128 118"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Campo Dorado</h3>
+      <div class="meta-line">
+        <span class="size">Jumbo</span>
+        <span class="price">S/ 260.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 04</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Susurro: lavanda de tela en tonos malva">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#5F6F52" stroke-width="1.3" fill="none">
+            <path d="M100 204 L100 140"/><path d="M92 204 L78 152"/><path d="M108 204 L124 156"/>
+          </g>
+          <g fill="#B9A6C6" opacity="0.95">
+            <ellipse cx="100" cy="126" rx="7" ry="16"/><ellipse cx="78" cy="142" rx="6" ry="13"/>
+            <ellipse cx="124" cy="146" rx="6" ry="12"/>
+          </g>
+          <g fill="none" stroke="#7A6489" stroke-width="0.8" opacity="0.6">
+            <path d="M100 114 L100 138"/><path d="M78 132 L78 152"/><path d="M124 136 L124 156"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Susurro</h3>
+      <div class="meta-line">
+        <span class="size">Pequeño</span>
+        <span class="price">S/ 60.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 05</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Medianoche: hortensias azul profundo">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#4C5A42" stroke-width="1.4" fill="none">
+            <path d="M100 208 L100 132"/><path d="M100 172 L74 148"/>
+          </g>
+          <g fill="#8C9BB5" stroke="#5E6C88" stroke-width="1">
+            <circle cx="100" cy="112" r="23"/><circle cx="73" cy="140" r="15"/><circle cx="129" cy="134" r="16"/>
+          </g>
+          <g fill="none" stroke="#3A2747" stroke-width="0.9" opacity="0.45">
+            <circle cx="100" cy="112" r="12"/><circle cx="73" cy="140" r="7"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Medianoche</h3>
+      <div class="meta-line">
+        <span class="size">Mediano</span>
+        <span class="price">S/ 110.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+
+    <article class="piece">
+      <figure>
+        <span class="plate">N.º 06</span>
+        <svg viewBox="0 0 200 250" role="img" aria-label="Ramo Peonía Blanca: peonías blancas y eucalipto">
+          <rect width="200" height="250" fill="#F4EFE5"/>
+          <g stroke="#5F6F52" stroke-width="1.4" fill="none">
+            <path d="M100 206 L100 134"/><path d="M100 170 L126 150"/>
+          </g>
+          <g fill="#FBF6EC" stroke="#C9BFAE" stroke-width="1.2">
+            <circle cx="100" cy="116" r="22"/><circle cx="127" cy="140" r="14"/>
+          </g>
+          <g fill="none" stroke="#A89C86" stroke-width="0.9" opacity="0.7">
+            <circle cx="100" cy="116" r="11"/><circle cx="127" cy="140" r="6"/>
+          </g>
+          <g fill="#7E8F70" opacity="0.6">
+            <circle cx="72" cy="158" r="4"/><circle cx="66" cy="168" r="3.4"/><circle cx="78" cy="170" r="3"/>
+          </g>
+        </svg>
+      </figure>
+      <h3>Ramo Peonía Blanca</h3>
+      <div class="meta-line">
+        <span class="size">Pequeño</span>
+        <span class="price">S/ 72.00</span>
+      </div>
+      <a class="ask" href="#consultar">Consultar</a>
+    </article>
+  </div>
+
+  <div class="catalog-foot">
+    <p>¿Buscas algo distinto? Armamos arreglos a medida.</p>
+    <p><a href="#whatsapp">Escríbenos al 930 190 189</a></p>
+  </div>
+</main>
+
+<!-- ══════════════════ PANEL ══════════════════ -->
+<div class="surface-tag"><b>Superficie 2</b> Panel de gestión · /admin/ramos</div>
+
+<div class="panel">
+  <nav class="panel-nav" aria-label="Navegación del panel">
+    <p class="brand">EternaFlor <small>Gestión</small></p>
+
+    <h2>Catálogo</h2>
+    <ul>
+      <li><a href="#ramos" aria-current="page">Ramos <span class="n">6</span></a></li>
+      <li><a href="#materias">Materias primas <span class="n">12</span></a></li>
+    </ul>
+
+    <h2>Operación</h2>
+    <ul>
+      <li><a href="#pedidos">Pedidos <span class="n">4</span></a></li>
+      <li><a href="#reportes">Reportes</a></li>
+    </ul>
+
+    <div class="nav-foot">
+      <a href="#catalogo">Ver catálogo ↗</a>
+      <a href="#salir">Cerrar sesión</a>
+    </div>
+  </nav>
+
+  <div class="panel-main">
+    <div class="panel-bar">
+      <div>
+        <h1>Ramos</h1>
+        <p class="sub">6 productos registrados · 2 con stock bajo</p>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-end">
+        <p class="who"><b>admin@eternaflor.local</b>Administrador</p>
+        <button class="btn" type="button">Nuevo ramo</button>
+      </div>
+    </div>
+
+    <dl class="kpis">
+      <div class="kpi"><dt>Ingresos del mes</dt><dd>S/ 4 820.00</dd></div>
+      <div class="kpi"><dt>Costos</dt><dd>S/ 1 947.50</dd></div>
+      <div class="kpi"><dt>Margen</dt><dd>S/ 2 872.50</dd></div>
+      <div class="kpi"><dt>Margen %</dt><dd>59.6 <small>%</small></dd></div>
+    </dl>
+
+    <table>
+      <caption>Inventario de ramos</caption>
+      <thead>
+        <tr>
+          <th scope="col">Ramo</th>
+          <th scope="col">Tamaño</th>
+          <th scope="col" class="num">Precio</th>
+          <th scope="col" class="num">Costo</th>
+          <th scope="col" class="num">Margen</th>
+          <th scope="col" class="num">Stock</th>
+          <th scope="col">Receta</th>
+          <th scope="col"><span class="visually-hidden">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name">Ramo Aurora</td>
+          <td>Grande</td>
+          <td class="num">185.00</td>
+          <td class="num">72.40</td>
+          <td class="num">112.60</td>
+          <td class="num">12</td>
+          <td><span class="state s-idle">3 insumos</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+        <tr>
+          <td class="name">Ramo Jardín Secreto</td>
+          <td>Mediano</td>
+          <td class="num">95.00</td>
+          <td class="num">41.10</td>
+          <td class="num">53.90</td>
+          <td class="num">3</td>
+          <td><span class="state s-warn">Stock bajo</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+        <tr>
+          <td class="name">Ramo Campo Dorado</td>
+          <td>Jumbo</td>
+          <td class="num">260.00</td>
+          <td class="num">118.00</td>
+          <td class="num">142.00</td>
+          <td class="num">7</td>
+          <td><span class="state s-idle">4 insumos</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+        <tr>
+          <td class="name">Ramo Susurro</td>
+          <td>Pequeño</td>
+          <td class="num">60.00</td>
+          <td class="num">28.30</td>
+          <td class="num">31.70</td>
+          <td class="num">0</td>
+          <td><span class="state s-bad">Sin stock</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+        <tr>
+          <td class="name">Ramo Medianoche</td>
+          <td>Mediano</td>
+          <td class="num">110.00</td>
+          <td class="num">47.80</td>
+          <td class="num">62.20</td>
+          <td class="num">9</td>
+          <td><span class="state s-idle">3 insumos</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+        <tr>
+          <td class="name">Ramo Peonía Blanca</td>
+          <td>Pequeño</td>
+          <td class="num">72.00</td>
+          <td class="num">34.60</td>
+          <td class="num">37.40</td>
+          <td class="num">2</td>
+          <td><span class="state s-warn">Stock bajo</span></td>
+          <td><div class="row-actions"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="panel-note">
+      <b>Qué cambia frente a hoy</b>
+      Los números se alinean a la derecha en monoespaciada y se leen en columna; el estado deja de ser una píldora de color y pasa a ser texto con punto, así que sigue funcionando para quien no distingue rojo de verde. El margen negativo se marca en el acento, nunca con una segunda paleta.
+    </div>
+  </div>
+</div>
+
+<p class="footnote">
+  <b>Nota de implementación.</b> Este artboard usa pilas de fuentes del sistema porque las reglas de la skill prohíben fuentes externas; en producción, el serif es <b>Fraunces</b> y el cuerpo <b>Nunito</b> o <b>Geist</b>, que ya se cargan en el proyecto. Los contrastes se eligieron para superar 4.5:1: <b>#241C15</b> sobre <b>#FBF8F3</b> ronda 13:1, <b>#6B5F52</b> sobre el mismo fondo ronda 5.2:1, y el acento <b>#9B2C48</b> ronda 7:1. Esto corrige el defecto del sistema documentado, donde <b>#FF8AB8</b> con texto blanco apenas llega a 2.2:1.
+</p>
+
+</body>
+</html>

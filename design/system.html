@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EternaFlor — Design system (Pastel Candy)</title>
+<style>
+  :root{
+    --ink:#3a2747;
+    --ink-muted:#6e5a7a;
+    --surface:#ffffff;
+    --petal:#fff3f7;
+    --petal-deep:#fbe4ee;
+    --line:#ecd9e6;
+    --line-strong:#dcc4d6;
+    --lilac:#9e82b5;
+    --blossom:#ff8ab8;
+    --blossom-deep:#f2659c;
+    --success:#1f7a52;
+    --warning:#8a5a12;
+    --danger:#a4262f;
+    --radius-tight:12px;
+    --radius-soft:20px;
+    --radius-lush:32px;
+    --font-display:Georgia,"Times New Roman",serif;
+    --font-body:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  *{border-color:var(--line);}
+  body{
+    margin:0;background:var(--petal);color:var(--ink);
+    font-family:var(--font-body);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,p,ul,ol,figure{margin:0;}
+  ul,ol{padding:0;list-style:none;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px;}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:48px 24px 96px;}
+
+  header.page{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px;}
+  header.page h1{font-family:var(--font-display);font-size:2.5rem;font-weight:600;letter-spacing:-0.02em;line-height:1.1;}
+  header.page p{margin-top:10px;color:var(--ink-muted);font-size:0.9375rem;max-width:74ch;}
+  .caption{display:inline-block;margin-top:16px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:0.75rem;font-weight:600;color:var(--ink-muted);}
+
+  section{margin-bottom:64px;}
+  section > h2{
+    font-family:var(--font-body);font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--ink-muted);padding-bottom:12px;margin-bottom:24px;border-bottom:1px solid var(--line);
+  }
+  section > p.note{color:var(--ink-muted);font-size:0.875rem;margin:-12px 0 24px;max-width:78ch;}
+
+  code.inl{font-family:var(--font-mono);font-size:0.8125rem;background:var(--petal);padding:1px 5px;border-radius:4px;}
+
+  /* swatches */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
+  .swatch{border:1px solid var(--line);border-radius:var(--radius-tight);overflow:hidden;background:var(--surface);}
+  .swatch .chip{height:72px;border-bottom:1px solid var(--line);}
+  .swatch .meta{padding:10px 12px;}
+  .swatch code{font-family:var(--font-mono);font-size:0.75rem;color:var(--ink);display:block;}
+  .swatch span{font-family:var(--font-mono);font-size:0.6875rem;color:var(--ink-muted);}
+  .swatch .warn{margin-top:6px;font-size:0.6875rem;line-height:1.4;color:var(--danger);}
+
+  /* type */
+  .type-row{display:grid;grid-template-columns:140px 1fr;gap:24px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line);}
+  .type-row:last-child{border-bottom:0;}
+  .type-row .label{font-family:var(--font-mono);font-size:0.6875rem;color:var(--ink-muted);}
+  .t-display{font-family:var(--font-display);font-size:2.25rem;font-weight:600;letter-spacing:-0.02em;line-height:1.15;}
+  .t-lg{font-size:1.125rem;font-weight:600;}
+  .t-base{font-size:1rem;}
+  .t-sm{font-size:0.875rem;color:var(--ink-muted);}
+  .t-xs{font-size:0.75rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-muted);}
+  .t-mono{font-family:var(--font-mono);font-size:0.8125rem;}
+
+  /* radius */
+  .radius-row{display:flex;gap:20px;flex-wrap:wrap;}
+  .radius-row .r{text-align:center;}
+  .radius-row .r .box{width:88px;height:88px;background:var(--surface);border:1px solid var(--line);box-shadow:none;margin-bottom:8px;}
+  .radius-row code{font-family:var(--font-mono);font-size:0.6875rem;color:var(--ink-muted);}
+
+  /* components */
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lush);
+    padding:24px;
+  }
+  .card h3{font-family:var(--font-display);font-size:1rem;font-weight:600;margin-bottom:16px;}
+  .card .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  button{font-family:inherit;font-size:0.875rem;cursor:pointer;border:0;}
+  .btn-primary,.btn-secondary,.btn-ghost,.btn-danger{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-weight:600;transition:background-color 150ms,color 150ms,transform 150ms;
+  }
+  .btn-primary{padding:11px 20px;border-radius:var(--radius-soft);background:var(--blossom);color:var(--ink);}
+  .btn-primary:hover{background:var(--blossom-deep);}
+  .btn-primary:active{transform:scale(0.98);}
+  .btn-secondary{padding:11px 20px;border-radius:var(--radius-soft);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);}
+  .btn-secondary:hover{background:var(--petal);}
+  .btn-ghost{padding:11px 20px;border-radius:var(--radius-soft);background:transparent;color:var(--ink-muted);}
+  .btn-ghost:hover{background:var(--petal);color:var(--ink);}
+  .btn-danger{padding:11px 20px;border-radius:var(--radius-soft);border:1px solid rgba(164,38,47,0.4);background:var(--surface);color:var(--danger);}
+  .btn-danger:hover{background:rgba(164,38,47,0.05);}
+  .btn-sm{padding:8px 12px;border-radius:var(--radius-tight);font-size:0.8125rem;}
+  .btn-icon{width:36px;height:36px;border-radius:var(--radius-tight);padding:0;}
+
+  .field{display:block;margin-bottom:12px;}
+  .field span{display:block;font-size:0.75rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;}
+  .input-field{
+    width:100%;font-family:inherit;font-size:0.875rem;color:var(--ink);
+    padding:10px 12px;border:1px solid var(--line-strong);border-radius:var(--radius-tight);
+    background:var(--surface);transition:border-color 150ms,outline 150ms;
+  }
+  .input-field:focus{outline:2px solid var(--blossom);outline-offset:0;border-color:var(--blossom);}
+  .input-field::placeholder{color:var(--ink-muted);opacity:0.6;}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;
+    font-size:0.75rem;font-weight:700;letter-spacing:0.02em;border:1px solid transparent;
+  }
+  .b-neutral{border-color:var(--line);background:var(--petal);color:var(--ink-muted);}
+  .b-accent{background:var(--blossom);color:var(--ink);}
+  .b-success{background:rgba(31,122,82,0.1);color:var(--success);}
+  .b-warning{background:rgba(138,90,18,0.1);color:var(--warning);}
+  .b-danger{background:rgba(164,38,47,0.1);color:var(--danger);}
+
+  .empty{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px dashed var(--line-strong);border-radius:var(--radius-lush);
+    padding:48px 24px;text-align:center;
+  }
+  .empty h4{font-family:var(--font-display);font-size:1.125rem;font-weight:600;margin-bottom:6px;}
+  .empty p{font-size:0.875rem;color:var(--ink-muted);max-width:24ch;}
+
+  .spinner{display:inline-flex;align-items:center;gap:8px;font-size:0.875rem;color:var(--ink-muted);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spin{animation:spin 1s linear infinite;}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:0.875rem;background:var(--surface);border-radius:var(--radius-lush);border:1px solid var(--line);overflow:hidden;}
+  th{
+    text-align:left;font-size:0.6875rem;font-weight:700;letter-spacing:0.06em;
+    text-transform:uppercase;color:var(--ink-muted);padding:12px 16px;border-bottom:1px solid var(--line);background:var(--petal);
+  }
+  td{padding:14px 16px;border-bottom:1px solid var(--line);}
+  tbody tr:last-child td{border-bottom:0;}
+  .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;}
+  th.num{text-align:right;}
+
+  /* estado */
+  .estado{
+    border-left:3px solid var(--blossom);background:var(--surface);
+    padding:16px 20px;border-radius:0 var(--radius-tight) var(--radius-tight) 0;font-size:0.875rem;
+  }
+  .estado ol{margin:10px 0 0;padding-left:20px;color:var(--ink-muted);}
+  .estado li{margin-bottom:6px;}
+  .estado strong{color:var(--ink);}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <h1>EternaFlor — design system</h1>
+    <p>Current system after the <code class="inl">feat/ui-refresh</code> migration. Tokens come from <code class="inl">eterna-flor-front/app/globals.css</code>; components from <code class="inl">components/ui</code>. Fonts render as a system stack because Fraunces and Nunito are webfonts loaded by Next.js, not system fonts.</p>
+    <span class="caption">Pastel Candy — synchronized</span>
+  </header>
+
+  <section aria-labelledby="colors">
+    <h2 id="colors">Colors — 13 tokens</h2>
+    <p class="note">Source: <code class="inl">eterna-flor-front/app/globals.css</code> <code class="inl">@theme</code>.</p>
+    <ul class="swatches">
+      <li class="swatch"><div class="chip" style="background:var(--ink)"></div><div class="meta"><code>--color-ink</code><span>#3a2747</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--ink-muted)"></div><div class="meta"><code>--color-ink-muted</code><span>#6e5a7a</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--surface)"></div><div class="meta"><code>--color-surface</code><span>#ffffff</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--petal)"></div><div class="meta"><code>--color-petal</code><span>#fff3f7</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--petal-deep)"></div><div class="meta"><code>--color-petal-deep</code><span>#fbe4ee</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--line)"></div><div class="meta"><code>--color-line</code><span>#ecd9e6</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--line-strong)"></div><div class="meta"><code>--color-line-strong</code><span>#dcc4d6</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--lilac)"></div><div class="meta"><code>--color-lilac</code><span>#9e82b5</span><p class="warn">⚠ Forbidden as text: 2.7:1 on petal, below WCAG AA 4.5:1. Borders and fills only.</p></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--blossom)"></div><div class="meta"><code>--color-blossom</code><span>#ff8ab8</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--blossom-deep)"></div><div class="meta"><code>--color-blossom-deep</code><span>#f2659c</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--success)"></div><div class="meta"><code>--color-success</code><span>#1f7a52</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--warning)"></div><div class="meta"><code>--color-warning</code><span>#8a5a12</span></div></li>
+      <li class="swatch"><div class="chip" style="background:var(--danger)"></div><div class="meta"><code>--color-danger</code><span>#a4262f</span></div></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="type">
+    <h2 id="type">Typography — 2 font tokens</h2>
+    <p class="note">Source: <code class="inl">app/layout.tsx</code> loads Fraunces and Nunito via <code class="inl">next/font/google</code>; <code class="inl">globals.css</code> exposes them as <code class="inl">--font-display</code> and <code class="inl">--font-body</code>.</p>
+    <div class="type-row"><span class="label">font-display</span><span class="t-display">Ramos artificiales exclusivos</span></div>
+    <div class="type-row"><span class="label">text-lg / 600</span><span class="t-lg">Ramo Aurora — Girasoles</span></div>
+    <div class="type-row"><span class="label">text-base / body</span><span class="t-base">Hechos a mano en el taller EternaFlor.</span></div>
+    <div class="type-row"><span class="label">text-sm / muted</span><span class="t-sm">Pedido #1042 · entregado el 12 feb</span></div>
+    <div class="type-row"><span class="label">label / 0.75rem</span><span class="t-xs">Materias primas</span></div>
+    <div class="type-row"><span class="label">font-body</span><span class="t-base">Cuerpo de interfaz en Nunito.</span></div>
+    <div class="type-row"><span class="label">numeric</span><span class="t-mono">S/ 145.00 · 24 unidades</span></div>
+  </section>
+
+  <section aria-labelledby="radius">
+    <h2 id="radius">Radius — 3 tokens</h2>
+    <p class="note">Source: <code class="inl">@theme</code> in <code class="inl">globals.css</code>. Tailwind defaults <code class="inl">--radius-sm/md/lg</code> are intentionally left untouched.</p>
+    <div class="radius-row">
+      <div class="r"><div class="box" style="border-radius:var(--radius-tight)"></div><code>tight · 12px</code></div>
+      <div class="r"><div class="box" style="border-radius:var(--radius-soft)"></div><code>soft · 20px</code></div>
+      <div class="r"><div class="box" style="border-radius:var(--radius-lush)"></div><code>lush · 32px</code></div>
+      <div class="r"><div class="box" style="border-radius:999px"></div><code>full</code></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="shadows">
+    <h2 id="shadows">Shadows — none declared</h2>
+    <p class="note">No shadow tokens exist in <code class="inl">@theme</code>. The component layer relies on surface/border/radius contrast instead of shadows.</p>
+  </section>
+
+  <section aria-labelledby="components">
+    <h2 id="components">Components — 11 exports</h2>
+    <p class="note">Source: <code class="inl">eterna-flor-front/components/ui/*.tsx</code>.</p>
+    <div class="comp-grid">
+      <div class="card">
+        <h3>Button variants</h3>
+        <div class="row">
+          <button class="btn-primary" type="button">Guardar</button>
+          <button class="btn-secondary" type="button">Cancelar</button>
+          <button class="btn-ghost" type="button">Ver detalle</button>
+          <button class="btn-danger" type="button">Eliminar</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn-primary btn-sm" type="button">Sm</button>
+          <button class="btn-primary btn-icon" type="button" aria-label="Agregar">+</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Badges</h3>
+        <div class="row">
+          <span class="badge b-neutral">Neutral</span>
+          <span class="badge b-accent">Accent</span>
+          <span class="badge b-success">Success</span>
+          <span class="badge b-warning">Warning</span>
+          <span class="badge b-danger">Danger</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Field + Input</h3>
+        <label class="field"><span>Nombre del ramo</span><input class="input-field" type="text" value="Ramo Aurora"></label>
+        <label class="field" style="margin-bottom:0"><span>Precio de venta</span><input class="input-field" type="text" value="145.00" inputmode="decimal"></label>
+      </div>
+
+      <div class="card">
+        <h3>Card surface</h3>
+        <p style="font-size:0.875rem;color:var(--ink-muted)">White surface, <code class="inl">--color-line</code> border, <code class="inl">--radius-lush</code> (32px). No shadow.</p>
+      </div>
+    </div>
+
+    <div class="comp-grid" style="margin-top:24px">
+      <div class="empty">
+        <h4>Sin resultados</h4>
+        <p>No se encontraron ramos para este filtro.</p>
+        <button class="btn-primary" type="button" style="margin-top:16px">Limpiar filtros</button>
+      </div>
+
+      <div class="card" style="display:flex;align-items:center;gap:12px">
+        <span class="spinner">
+          <svg class="spin" viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25" stroke-width="3"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          Cargando…
+        </span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;padding:0;overflow:hidden">
+      <table>
+        <caption class="t-xs" style="text-align:left;padding:16px 16px 0">Tabla de referencia — cifras con <code class="inl">numeric</code></caption>
+        <thead><tr><th>Ramo</th><th>Tamaño</th><th class="num">Stock</th><th class="num">Precio</th></tr></thead>
+        <tbody>
+          <tr><td>Ramo Aurora</td><td>Grande</td><td class="num">12</td><td class="num">S/ 145.00</td></tr>
+          <tr><td>Ramo Jardín</td><td>Mediano</td><td class="num">3</td><td class="num">S/ 95.00</td></tr>
+          <tr><td>Ramo Susurro</td><td>Pequeño</td><td class="num">0</td><td class="num">S/ 60.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="motion">
+    <h2 id="motion">Motion — 3 keyframes</h2>
+    <div class="comp-grid">
+      <div class="card"><h3 style="margin-bottom:8px">fadeIn · 160ms</h3><p style="font-size:0.8125rem;color:var(--ink-muted)">opacity 0 → 1</p></div>
+      <div class="card"><h3 style="margin-bottom:8px">slideIn · 160ms</h3><p style="font-size:0.8125rem;color:var(--ink-muted)">opacity 0 → 1, translateX −8px → 0</p></div>
+      <div class="card"><h3 style="margin-bottom:8px">cardIn · 240ms</h3><p style="font-size:0.8125rem;color:var(--ink-muted)">opacity 0 → 1. Deprecated, kept for unmigrated catalog surface.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="estado">
+    <h2 id="estado">Estado</h2>
+    <div class="estado">
+      <strong>Los dos sistemas visuales previos fueron unificados.</strong>
+      <ol>
+        <li>La paleta de tokens Pastel Candy en <code class="inl">@theme</code> es ahora la única fuente de verdad.</li>
+        <li>El shell del admin y la pantalla piloto <code class="inl">ramos</code> usan <code class="inl">components/ui</code>.</li>
+        <li>El catálogo y el login están migrados a los nuevos tokens; las pantallas restantes heredan la paleta unificada a través de las clases heredadas remapeadas.</li>
+        <li><code class="inl">DESIGN.md</code> está alineado con las correcciones de contraste: botón primario <code class="inl">blossom</code> sobre <code class="inl">ink</code> (6.1:1); <code class="inl">lilac</code> prohibido como texto.</li>
+      </ol>
+      <p style="margin-top:12px"><strong>Abierto:</strong> <code class="inl">next/image</code> sigue diferido porque Cloudinary requiere <code class="inl">remotePatterns</code> en <code class="inl">next.config.ts</code>. El frontend aún no tiene runner de tests.</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

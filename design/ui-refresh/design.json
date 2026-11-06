@@ -1,0 +1,27 @@
+{
+  "title": "EternaFlor — UI refresh",
+  "brief": "Tres direcciones visuales para unificar la tienda pública y el panel de gestión de EternaFlor bajo un solo sistema. Cada artboard muestra las dos superficies con datos reales del proyecto: seis ramos con sus tamaños y precios, cuatro KPIs de reportes, estados de stock y pedidos.",
+  "artboards": [
+    {
+      "file": "01-botanical-editorial.html",
+      "title": "Botanical Editorial",
+      "tradeoff": "Catálogo de autor: serif de alto contraste, filetes finos en lugar de tarjetas con sombra, precio y estado como datos. La marca se siente cuidada y cara; el escaneo rápido es más lento y el panel pierde la familiaridad de un dashboard.",
+      "width": 1440,
+      "height": 2800
+    },
+    {
+      "file": "02-candy-counter.html",
+      "title": "Candy Counter",
+      "tradeoff": "Implementa de verdad el sistema Pastel Candy ya documentado en DESIGN.md, con los contrastes corregidos. Cálido y memorable, y el más barato de adoptar porque el sistema existe; el radio grande consume espacio y el panel puede sentirse poco serio para operación.",
+      "width": 1440,
+      "height": 2700
+    },
+    {
+      "file": "03-atelier-workbench.html",
+      "title": "Atelier Workbench",
+      "tradeoff": "La operación manda: sin sombras, filetes de 1px, números tabulares en monoespaciada, densidad alta y color solo para estado. El panel más rápido de escanear y el más honesto con los datos; la tienda pierde encanto emocional y pide que la marca la ponga la fotografía.",
+      "width": 1440,
+      "height": 2300
+    }
+  ]
+}

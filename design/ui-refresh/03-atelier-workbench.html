@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 — Atelier Workbench · EternaFlor</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --surface:#FFFFFF;
+    --ink:#18181B;
+    --ink-soft:#52525B;
+    --rule:#E4E4E7;
+    --rule-strong:#D4D4D8;
+    --fill:#F4F4F5;
+    --ok:#15803D;
+    --ok-bg:#F0FDF4;
+    --warn:#B45309;
+    --warn-bg:#FFFBEB;
+    --bad:#B91C1C;
+    --bad-bg:#FEF2F2;
+    --info:#1D4ED8;
+    --info-bg:#EFF6FF;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);font-size:14px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0;}
+  ul,ol{padding:0;list-style:none;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--info);outline-offset:2px;}
+
+  .ribbon{
+    background:var(--ink);color:#fff;padding:12px 40px;
+    display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;font-size:0.8125rem;
+  }
+  .ribbon strong{font-size:0.875rem;font-weight:700;letter-spacing:0.01em;}
+  .ribbon span{color:#D4D4D8;}
+  .ribbon em{font-style:normal;color:#fff;font-weight:600;}
+
+  .surface-tag{
+    padding:9px 40px;background:var(--fill);border-bottom:1px solid var(--rule);
+    font-size:0.6875rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--ink-soft);display:flex;gap:14px;
+  }
+  .surface-tag b{color:var(--ink);}
+
+  /* ══════════ TIENDA ══════════ */
+  .shop-head{
+    display:flex;justify-content:space-between;align-items:center;gap:32px;
+    padding:16px 40px;border-bottom:1px solid var(--rule);background:var(--surface);
+    flex-wrap:wrap;
+  }
+  .shop-head .mark{
+    font-size:1rem;font-weight:700;letter-spacing:-0.02em;
+  }
+  .shop-head .mark span{color:var(--ink-soft);font-weight:400;}
+  .shop-head nav{display:flex;gap:2px;align-items:center;}
+  .shop-head nav a{
+    font-size:0.8125rem;font-weight:500;color:var(--ink-soft);
+    text-decoration:none;padding:7px 12px;border-radius:5px;
+  }
+  .shop-head nav a:hover{background:var(--fill);color:var(--ink);}
+  .shop-head nav a[aria-current="true"]{background:var(--ink);color:#fff;}
+  .shop-head .wa{
+    font-family:var(--mono);font-size:0.8125rem;font-weight:600;
+    text-decoration:none;color:var(--ink);
+    border-bottom:1.5px solid var(--ink);padding-bottom:1px;
+  }
+
+  .shop-intro{
+    padding:36px 40px 28px;border-bottom:1px solid var(--rule);
+    display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;
+  }
+  .shop-intro h1{
+    font-size:2rem;font-weight:700;letter-spacing:-0.035em;line-height:1.1;max-width:20ch;
+  }
+  .shop-intro .facts{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+    border-left:1px solid var(--rule);
+  }
+  .shop-intro .facts div{padding:2px 0 2px 20px;}
+  .shop-intro .facts dt{
+    font-size:0.6875rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:3px;
+  }
+  .shop-intro .facts dd{font-size:0.875rem;font-weight:500;}
+
+  .shop-bar{
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    padding:12px 40px;border-bottom:1px solid var(--rule);background:var(--surface);
+    flex-wrap:wrap;
+  }
+  .shop-bar .count{font-family:var(--mono);font-size:0.75rem;color:var(--ink-soft);}
+  .shop-bar .sizes{display:flex;gap:6px;flex-wrap:wrap;}
+  .shop-bar .sizes a{
+    font-size:0.75rem;font-weight:600;text-decoration:none;color:var(--ink-soft);
+    padding:5px 11px;border:1px solid var(--rule);border-radius:4px;background:var(--surface);
+  }
+  .shop-bar .sizes a:hover{border-color:var(--ink);color:var(--ink);}
+  .shop-bar .sizes a[aria-current="true"]{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  .sheet{padding:0 40px 40px;}
+  .grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:1px solid var(--rule);border-left:1px solid var(--rule);
+  }
+  .cell{
+    border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+    background:var(--surface);padding:0;display:flex;flex-direction:column;
+  }
+  .cell .art{
+    background:var(--fill);border-bottom:1px solid var(--rule);
+    display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;
+  }
+  .cell .art svg{width:100%;height:100%;}
+  .cell .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1;}
+  .cell .row1{display:flex;justify-content:space-between;align-items:baseline;gap:12px;}
+  .cell h3{font-size:0.9375rem;font-weight:600;letter-spacing:-0.01em;}
+  .cell .tag{
+    font-family:var(--mono);font-size:0.6875rem;font-weight:600;color:var(--ink-soft);
+    background:var(--fill);padding:2px 7px;border-radius:3px;white-space:nowrap;
+  }
+  .cell .row2{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    margin-top:auto;padding-top:10px;border-top:1px solid var(--rule);
+  }
+  .cell .price{
+    font-family:var(--mono);font-size:1rem;font-weight:600;
+    font-variant-numeric:tabular-nums;letter-spacing:-0.02em;
+  }
+  .cell .price span{
+    font-size:0.6875rem;font-weight:500;color:var(--ink-soft);letter-spacing:0;
+    display:block;
+  }
+  .cell .ask{
+    font-size:0.75rem;font-weight:600;text-decoration:none;color:var(--ink);
+    border:1px solid var(--ink);padding:6px 12px;border-radius:4px;
+    display:inline-flex;align-items:center;gap:6px;transition:background 140ms,color 140ms;
+  }
+  .cell .ask:hover{background:var(--ink);color:#fff;}
+  .cell .ask svg{width:13px;height:13px;}
+
+  .shop-foot{
+    display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    padding:16px 40px;border-top:1px solid var(--rule);background:var(--surface);
+    font-size:0.8125rem;color:var(--ink-soft);
+  }
+  .shop-foot b{color:var(--ink);}
+
+  /* ══════════ PANEL ══════════ */
+  .panel{display:grid;grid-template-columns:200px 1fr;border-top:1px solid var(--rule-strong);}
+  .panel-nav{border-right:1px solid var(--rule);padding:14px 0;background:var(--surface);}
+  .panel-nav .brand{
+    display:flex;align-items:center;gap:8px;padding:6px 16px 14px;
+    border-bottom:1px solid var(--rule);margin-bottom:10px;
+    font-size:0.8125rem;font-weight:700;letter-spacing:-0.01em;
+  }
+  .panel-nav .brand .sq{
+    width:18px;height:18px;border-radius:4px;background:var(--ink);color:#fff;
+    display:grid;place-items:center;font-size:0.625rem;
+  }
+  .panel-nav h2{
+    font-size:0.625rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--ink-soft);padding:0 16px;margin:14px 0 4px;
+  }
+  .panel-nav li a{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 16px;font-size:0.8125rem;text-decoration:none;color:var(--ink-soft);
+    border-left:2px solid transparent;
+  }
+  .panel-nav li a:hover{background:var(--fill);color:var(--ink);}
+  .panel-nav li a[aria-current="page"]{
+    background:var(--fill);color:var(--ink);font-weight:600;border-left-color:var(--ink);
+  }
+  .panel-nav li a .n{font-family:var(--mono);font-size:0.6875rem;color:var(--ink-soft);}
+  .panel-nav .nav-foot{
+    margin:14px 16px 0;padding-top:12px;border-top:1px solid var(--rule);
+    display:grid;gap:6px;font-size:0.75rem;
+  }
+  .panel-nav .nav-foot a{color:var(--ink-soft);text-decoration:none;}
+  .panel-nav .nav-foot a:hover{color:var(--ink);text-decoration:underline;}
+
+  .panel-main{background:var(--bg);}
+  .panel-bar{
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    padding:16px 28px;border-bottom:1px solid var(--rule);background:var(--surface);
+    flex-wrap:wrap;
+  }
+  .panel-bar h1{font-size:1.125rem;font-weight:700;letter-spacing:-0.02em;}
+  .panel-bar .sub{font-size:0.75rem;color:var(--ink-soft);margin-top:2px;}
+  .panel-bar .right{display:flex;align-items:center;gap:10px;}
+  .panel-bar .who{
+    font-family:var(--mono);font-size:0.75rem;color:var(--ink-soft);
+    padding-right:10px;border-right:1px solid var(--rule);
+  }
+  .btn{
+    font-family:inherit;font-size:0.8125rem;font-weight:600;cursor:pointer;
+    padding:7px 14px;border-radius:5px;border:1px solid var(--ink);
+    background:var(--ink);color:#fff;transition:opacity 140ms;
+  }
+  .btn:hover{opacity:.86;}
+  .btn-quiet{
+    background:var(--surface);color:var(--ink);border-color:var(--rule-strong);
+  }
+  .btn-quiet:hover{background:var(--fill);opacity:1;border-color:var(--ink);}
+
+  .kpi-bar{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-bottom:1px solid var(--rule);background:var(--surface);
+  }
+  .kpi{padding:14px 28px;border-right:1px solid var(--rule);}
+  .kpi:last-child{border-right:0;}
+  .kpi dt{
+    font-size:0.625rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:5px;
+  }
+  .kpi dd{
+    font-family:var(--mono);font-size:1.125rem;font-weight:600;
+    font-variant-numeric:tabular-nums;letter-spacing:-0.02em;
+  }
+  .kpi dd small{font-size:0.6875rem;font-weight:500;color:var(--ink-soft);}
+  .kpi .delta{font-size:0.6875rem;font-weight:600;margin-left:6px;}
+  .up{color:var(--ok);}
+  .down{color:var(--bad);}
+
+  .table-wrap{padding:20px 28px 36px;}
+  .table-head{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    margin-bottom:10px;flex-wrap:wrap;
+  }
+  .table-head h2{font-size:0.8125rem;font-weight:700;letter-spacing:-0.01em;}
+  .table-head .tools{display:flex;gap:6px;align-items:center;}
+  .chip{
+    font-size:0.75rem;font-weight:500;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--rule);
+    padding:4px 10px;border-radius:4px;
+  }
+  .chip.on{background:var(--fill);color:var(--ink);font-weight:600;border-color:var(--rule-strong);}
+
+  table{
+    width:100%;border-collapse:collapse;font-size:0.8125rem;
+    background:var(--surface);border:1px solid var(--rule);
+  }
+  caption{
+    caption-side:top;text-align:left;font-size:0.6875rem;color:var(--ink-soft);
+    padding-bottom:8px;
+  }
+  th{
+    text-align:left;font-size:0.625rem;font-weight:700;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--ink-soft);
+    padding:8px 12px;border-bottom:1px solid var(--rule-strong);background:var(--fill);
+    white-space:nowrap;
+  }
+  td{padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:0;}
+  tbody tr:hover{background:#FCFCFC;}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;}
+  th.num{text-align:right;}
+  .name{font-weight:600;}
+  .sub{
+    font-family:var(--mono);font-size:0.6875rem;color:var(--ink-soft);
+    font-weight:400;display:block;margin-top:1px;
+  }
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:3px;
+    font-size:0.6875rem;font-weight:600;letter-spacing:0.01em;white-space:nowrap;
+  }
+  .b-ok{background:var(--ok-bg);color:var(--ok);}
+  .b-warn{background:var(--warn-bg);color:var(--warn);}
+  .b-bad{background:var(--bad-bg);color:var(--bad);}
+  .b-info{background:var(--info-bg);color:var(--info);}
+  .b-idle{background:var(--fill);color:var(--ink-soft);}
+  .acts{display:flex;gap:4px;justify-content:flex-end;}
+  .acts a{
+    font-size:0.75rem;font-weight:500;text-decoration:none;color:var(--ink-soft);
+    padding:3px 7px;border-radius:3px;
+  }
+  .acts a:hover{background:var(--fill);color:var(--ink);}
+
+  .panel-note{
+    margin:20px 28px 36px;padding:14px 18px;background:var(--surface);
+    border:1px solid var(--rule);border-left:3px solid var(--ink);
+    font-size:0.8125rem;color:var(--ink-soft);max-width:82ch;
+  }
+  .panel-note b{color:var(--ink);display:block;margin-bottom:4px;font-size:0.8125rem;}
+
+  .footnote{
+    padding:18px 40px 36px;border-top:1px solid var(--rule);
+    font-size:0.75rem;color:var(--ink-soft);line-height:1.6;max-width:100ch;
+  }
+  .footnote b{color:var(--ink);}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:0.001ms!important;transition-duration:0.001ms!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <strong>03 · Atelier Workbench</strong>
+  <span><em>Estrategia:</em> la operación manda. Sin sombras ni decoración, filetes de 1px, números tabulares en monoespaciada, densidad alta y color reservado exclusivamente para estado.</span>
+  <span><em>Tradeoff:</em> el panel más rápido de escanear y el más honesto con los datos; la tienda pierde encanto emocional y pide que la marca la ponga la fotografía, no la interfaz.</span>
+</div>
+
+<div class="surface-tag"><b>Superficie 1</b> Tienda pública · /catalogo</div>
+
+<header class="shop-head">
+  <p class="mark">EternaFlor <span>/ Ramos artificiales</span></p>
+  <nav aria-label="Secciones">
+    <a href="#catalogo" aria-current="true">Catálogo</a>
+    <a href="#taller">El taller</a>
+    <a href="#entregas">Entregas</a>
+  </nav>
+  <a class="wa" href="#whatsapp">930 190 189</a>
+</header>
+
+<div class="shop-intro">
+  <h1>Arreglos florales artificiales armados a mano en Lima</h1>
+  <dl class="facts">
+    <div><dt>Material</dt><dd>Flores de tela y seda</dd></div>
+    <div><dt>Duración</dt><dd>Sin mantenimiento</dd></div>
+    <div><dt>Entrega</dt><dd>48 horas</dd></div>
+    <div><dt>Pago</dt><dd>Yape, Plin, efectivo</dd></div>
+  </dl>
+</div>
+
+<div class="shop-bar">
+  <span class="count">06 piezas · actualizado hoy</span>
+  <div class="sizes" aria-label="Filtrar por tamaño">
+    <a href="#todos" aria-current="true">Todos</a>
+    <a href="#pequeno">Pequeño</a>
+    <a href="#mediano">Mediano</a>
+    <a href="#grande">Grande</a>
+    <a href="#jumbo">Jumbo</a>
+  </div>
+</div>
+
+<main class="sheet">
+  <div class="grid">
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Aurora: rosas de tela marfil y salvia">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#8A9A7C" stroke-width="1.5" fill="none"><path d="M120 164 L120 100"/><path d="M120 138 L96 116"/><path d="M120 128 L146 108"/></g>
+          <g fill="#F2EADB" stroke="#C9BCA4" stroke-width="1.1"><circle cx="120" cy="86" r="22"/><circle cx="96" cy="112" r="15"/><circle cx="146" cy="104" r="17"/></g>
+          <g fill="none" stroke="#A8556B" stroke-width=".9" opacity=".55"><circle cx="120" cy="86" r="12"/><circle cx="96" cy="112" r="7"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Aurora</h3><span class="tag">Grande</span></div>
+        <div class="row2">
+          <p class="price">S/ 185.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Jardín Secreto: peonías rosadas">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#6E7F5E" stroke-width="1.5" fill="none"><path d="M120 164 L120 106"/><path d="M120 140 L96 120"/><path d="M120 132 L146 116"/></g>
+          <g fill="#EFC3CB" stroke="#C994A0" stroke-width="1.1"><circle cx="120" cy="94" r="24"/><circle cx="96" cy="120" r="15"/><circle cx="146" cy="114" r="16"/></g>
+          <g fill="none" stroke="#B23F5C" stroke-width=".9" opacity=".5"><circle cx="120" cy="94" r="13"/><circle cx="96" cy="120" r="7"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Jardín Secreto</h3><span class="tag">Mediano</span></div>
+        <div class="row2">
+          <p class="price">S/ 95.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Campo Dorado: girasoles y trigo seco">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#8A9A7C" stroke-width="1.5" fill="none"><path d="M116 164 L116 102"/><path d="M116 136 L92 118"/></g>
+          <g fill="#F5D89F" stroke="#C9A264" stroke-width="1.1"><circle cx="116" cy="90" r="21"/><circle cx="92" cy="116" r="14"/></g>
+          <g fill="#8A6B36"><circle cx="116" cy="90" r="8"/><circle cx="92" cy="116" r="5"/></g>
+          <g stroke="#C9A264" stroke-width=".9" opacity=".75" fill="none"><path d="M148 118 L158 94"/><path d="M152 122 L168 104"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Campo Dorado</h3><span class="tag">Jumbo</span></div>
+        <div class="row2">
+          <p class="price">S/ 260.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Susurro: lavanda de tela malva">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#8A9A7C" stroke-width="1.3" fill="none"><path d="M120 164 L120 116"/><path d="M112 164 L100 126"/><path d="M128 164 L140 130"/></g>
+          <g fill="#C4B2D2"><ellipse cx="120" cy="102" rx="7" ry="17"/><ellipse cx="100" cy="116" rx="6" ry="13"/><ellipse cx="140" cy="120" rx="6" ry="12"/></g>
+          <g fill="none" stroke="#8B72A3" stroke-width=".9" opacity=".6"><path d="M120 88 L120 116"/><path d="M100 106 L100 126"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Susurro</h3><span class="tag">Pequeño</span></div>
+        <div class="row2">
+          <p class="price">S/ 60.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Medianoche: hortensias azul profundo">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#6E7F5E" stroke-width="1.5" fill="none"><path d="M120 164 L120 102"/><path d="M120 138 L96 118"/></g>
+          <g fill="#9FB0C8" stroke="#6B7E9C" stroke-width="1.1"><circle cx="120" cy="88" r="23"/><circle cx="96" cy="116" r="15"/><circle cx="146" cy="112" r="16"/></g>
+          <g fill="none" stroke="#2C3A52" stroke-width=".9" opacity=".4"><circle cx="120" cy="88" r="12"/><circle cx="96" cy="116" r="7"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Medianoche</h3><span class="tag">Mediano</span></div>
+        <div class="row2">
+          <p class="price">S/ 110.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="cell">
+      <div class="art">
+        <svg viewBox="0 0 240 180" role="img" aria-label="Ramo Peonía Blanca: peonías blancas y eucalipto">
+          <rect width="240" height="180" fill="#F4F4F5"/>
+          <g stroke="#8A9A7C" stroke-width="1.5" fill="none"><path d="M120 164 L120 108"/><path d="M120 140 L146 120"/></g>
+          <g fill="#FBF6EC" stroke="#CFC2AA" stroke-width="1.3"><circle cx="120" cy="94" r="23"/><circle cx="146" cy="116" r="14"/></g>
+          <g fill="none" stroke="#B3A48C" stroke-width=".9" opacity=".8"><circle cx="120" cy="94" r="12"/><circle cx="146" cy="116" r="6"/></g>
+          <g fill="#94A486" opacity=".55"><circle cx="96" cy="132" r="4"/><circle cx="90" cy="142" r="3.4"/></g>
+        </svg>
+      </div>
+      <div class="info">
+        <div class="row1"><h3>Ramo Peonía Blanca</h3><span class="tag">Pequeño</span></div>
+        <div class="row2">
+          <p class="price">S/ 72.00<span>incluye base</span></p>
+          <a class="ask" href="#consultar">Consultar <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C5.58 2 .34 7.24.34 13.7c0 2.06.54 4.08 1.56 5.86L.06 22l2.6-.68a11.66 11.66 0 0 0 5.58 1.42h.01c6.46 0 11.7-5.24 11.7-11.7C19.95 4.6 16.6 2 12.04 2Z"/></svg></a>
+        </div>
+      </div>
+    </article>
+  </div>
+</main>
+
+<div class="shop-foot">
+  <p><b>¿Necesitas otra combinación?</b> Armamos a medida con las flores que elijas.</p>
+  <p>Escríbenos al <b>930 190 189</b> · Lima, Perú</p>
+</div>
+
+<div class="surface-tag"><b>Superficie 2</b> Panel de gestión · /admin/ramos</div>
+
+<div class="panel">
+  <nav class="panel-nav" aria-label="Navegación del panel">
+    <p class="brand"><span class="sq" aria-hidden="true">E</span> EternaFlor</p>
+
+    <h2>Catálogo</h2>
+    <ul>
+      <li><a href="#ramos" aria-current="page">Ramos <span class="n">6</span></a></li>
+      <li><a href="#materias">Materias primas <span class="n">12</span></a></li>
+    </ul>
+
+    <h2>Operación</h2>
+    <ul>
+      <li><a href="#pedidos">Pedidos <span class="n">4</span></a></li>
+      <li><a href="#reportes">Reportes</a></li>
+    </ul>
+
+    <div class="nav-foot">
+      <a href="#catalogo">Ver catálogo ↗</a>
+      <a href="#salir">Cerrar sesión</a>
+    </div>
+  </nav>
+
+  <div class="panel-main">
+    <div class="panel-bar">
+      <div>
+        <h1>Ramos</h1>
+        <p class="sub">6 productos · 2 con stock bajo</p>
+      </div>
+      <div class="right">
+        <span class="who">admin@eternaflor.local</span>
+        <button class="btn btn-quiet" type="button">Exportar</button>
+        <button class="btn" type="button">Nuevo ramo</button>
+      </div>
+    </div>
+
+    <dl class="kpi-bar">
+      <div class="kpi"><dt>Ingresos</dt><dd>S/ 4 820.00 <span class="delta up">+12.4%</span></dd></div>
+      <div class="kpi"><dt>Costos</dt><dd>S/ 1 947.50</dd></div>
+      <div class="kpi"><dt>Margen</dt><dd>S/ 2 872.50</dd></div>
+      <div class="kpi"><dt>Margen %</dt><dd>59.6<small> %</small></dd></div>
+    </dl>
+
+    <div class="table-wrap">
+      <div class="table-head">
+        <h2>Inventario de ramos</h2>
+        <div class="tools">
+          <span class="chip on">Todos</span>
+          <span class="chip">Stock bajo</span>
+          <span class="chip">Sin stock</span>
+        </div>
+      </div>
+
+      <table>
+        <caption>Ordenado por margen descendente · 6 filas</caption>
+        <thead>
+          <tr>
+            <th scope="col">Ramo</th>
+            <th scope="col">Tamaño</th>
+            <th scope="col" class="num">Precio</th>
+            <th scope="col" class="num">Costo</th>
+            <th scope="col" class="num">Margen</th>
+            <th scope="col" class="num">Stock</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">Ramo Campo Dorado<span class="sub">4 insumos</span></td>
+            <td>Jumbo</td>
+            <td class="num">260.00</td>
+            <td class="num">118.00</td>
+            <td class="num">142.00</td>
+            <td class="num">7</td>
+            <td><span class="badge b-ok">Normal</span></td>
+            <td><div class="acts"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+          </tr>
+          <tr>
+            <td class="name">Ramo Aurora<span class="sub">3 insumos</span></td>
+            <td>Grande</td>
+            <td class="num">185.00</td>
+            <td class="num">72.40</td>
+            <td class="num">112.60</td>
+            <td class="num">12</td>
+            <td><span class="badge b-ok">Normal</span></td>
+            <td><div class="acts"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+          </tr>
+          <tr>
+            <td class="name">Ramo Medianoche<span class="sub">3 insumos</span></td>
+            <td>Mediano</td>
+            <td class="num">110.00</td>
+            <td class="num">47.80</td>
+            <td class="num">62.20</td>
+            <td class="num">9</td>
+            <td><span class="badge b-ok">Normal</span></td>
+            <td><div class="acts"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+          </tr>
+          <tr>
+            <td class="name">Ramo Jardín Secreto<span class="sub">3 insumos</span></td>
+            <td>Mediano</td>
+            <td class="num">95.00</td>
+            <td class="num">41.10</td>
+            <td class="num">53.90</td>
+            <td class="num">3</td>
+            <td><span class="badge b-warn">Stock bajo</span></td>
+            <td><div class="acts"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+          </tr>
+          <tr>
+            <td class="name">Ramo Peonía Blanca<span class="sub">2 insumos</span></td>
+            <td>Pequeño</td>
+            <td class="num">72.00</td>
+            <td class="num">34.60</td>
+            <td class="num">37.40</td>
+            <td class="num">2</td>
+            <td><span class="badge b-warn">Stock bajo</span></td>
+            <td><div class="acts"><a href="#editar">Editar</a><a href="#eliminar">Eliminar</a></div></td>
+          </tr>
+          <tr>
+            <td class="name">Ramo Susurro<span class="sub">2 insumos</span></td>
+            <td>Pequeño</td>
+            <td class="num">60.00</td>
+            <td class="num">28.30</td>
+            <td class="num">31.70</td>
+            <td class="num">0</td>
+            <td><span class="badge b-bad">Sin stock</span></td>
+            <td><div class="acts"><a href="#editar">Eliminar</a></div></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="panel-note">
+        <b>Qué cambia frente a hoy</b>
+        Los importes pierden el prefijo repetido <code>S/</code> en cada celda y se alinean en una sola columna tabular, así el ojo compara magnitudes y no texto. El color solo aparece en el estado, nunca en cifras: un margen bajo no es un error, y pintarlo de rojo lo vuelve ruido permanente. Filtros de stock como chips de texto en lugar de un select.
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="footnote">
+  <b>Nota de implementación.</b> Pilas del sistema por las reglas de la skill. Este es el único de los tres que puede implementarse sin cargar fuentes nuevas: la escala es 11/13/14/16/32 y todo el peso lo llevan la alineación y el filete. Contrastes: <b>#18181B</b> sobre <b>#FFFFFF</b> ≈ 18:1, <b>#52525B</b> sobre blanco ≈ 7.5:1, y los estados <b>#15803D</b>, <b>#B45309</b> y <b>#B91C1C</b> sobre sus fondos suaves superan 5.5:1. Es la dirección que menos depende del gusto y más de la disciplina tipográfica.
+</p>
+
+</body>
+</html>
