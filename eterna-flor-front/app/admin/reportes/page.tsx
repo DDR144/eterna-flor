@@ -1,6 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { money, percent } from '@/lib/format';
+import { labelTamano } from '@/lib/tamanos';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  Select,
+  Spinner,
+} from '@/components/ui';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -47,45 +59,59 @@ export default function ReportesPage() {
   const [masVendidos, setMasVendidos] = useState<RamoVendido[]>([]);
   const [periodo, setPeriodo] = useState('semana');
   const [loading, setLoading] = useState(true);
-
-  async function loadData() {
-    setLoading(true);
-    const token = getToken();
-    try {
-      const [resumenRes, pendientesRes, masVendidosRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/resumen?periodo=${periodo}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/pendientes`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/mas-vendidos?periodo=${periodo}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }),
-      ]);
-
-      const resumenData = await resumenRes.json();
-      const pendientesData = await pendientesRes.json();
-      const masVendidosData = await masVendidosRes.json();
-
-      setResumen(resumenData || null);
-      setPendientes(Array.isArray(pendientesData) ? pendientesData : []);
-      setMasVendidos(Array.isArray(masVendidosData) ? masVendidosData : []);
-    } catch (err) {
-      console.error(err);
-      setResumen(null);
-      setPendientes([]);
-      setMasVendidos([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [exportError, setExportError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadData() {
+      setLoading(true);
+      const token = getToken();
+      try {
+        const [resumenRes, pendientesRes, masVendidosRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/resumen?periodo=${periodo}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/pendientes`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/mas-vendidos?periodo=${periodo}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }),
+        ]);
+
+        const resumenData = await resumenRes.json();
+        const pendientesData = await pendientesRes.json();
+        const masVendidosData = await masVendidosRes.json();
+
+        if (!cancelled) {
+          setResumen(resumenData || null);
+          setPendientes(Array.isArray(pendientesData) ? pendientesData : []);
+          setMasVendidos(Array.isArray(masVendidosData) ? masVendidosData : []);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setResumen(null);
+          setPendientes([]);
+          setMasVendidos([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     loadData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [periodo]);
 
   async function exportarDatos() {
+    setExportError('');
     const token = getToken();
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reportes/exportar`, {
@@ -98,157 +124,232 @@ export default function ReportesPage() {
       a.download = `eternaflor_export_${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Error al exportar datos');
+    } catch {
+      setExportError('Error al exportar datos');
     }
   }
 
-  if (loading) return <div className="text-center py-8">Cargando...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner label="Cargando reportes" />
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Reportes</h1>
-        <div className="flex gap-3">
-          <select
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-ink-muted">Resumen del período</p>
+        <div className="flex items-center gap-3">
+          <label htmlFor="periodo" className="sr-only">
+            Período
+          </label>
+          <Select
+            id="periodo"
+            name="periodo"
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value)}
-            className="border rounded-lg px-3 py-2"
+            className="w-auto"
           >
             <option value="dia">Hoy</option>
             <option value="semana">Esta semana</option>
             <option value="mes">Este mes</option>
             <option value="todos">Todo el tiempo</option>
-          </select>
-          <button
-            onClick={exportarDatos}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </Select>
+          <Button variant="secondary" onClick={exportarDatos}>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             Exportar CSV
-          </button>
+          </Button>
         </div>
       </div>
 
+      {exportError ? (
+        <p
+          role="alert"
+          className="mb-6 rounded-tight border border-danger/40 bg-danger/5 px-3 py-2 text-sm text-danger"
+        >
+          {exportError}
+        </p>
+      ) : null}
+
       {resumen && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-gray-500 mb-1">Ingresos</p>
-              <p className="text-2xl font-bold text-green-600">S/ {resumen.ingresosTotales.toFixed(2)}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-gray-500 mb-1">Costos</p>
-              <p className="text-2xl font-bold text-red-600">S/ {resumen.costosTotales.toFixed(2)}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-gray-500 mb-1">Margen</p>
-              <p className="text-2xl font-bold text-rose-600">S/ {resumen.margenTotal.toFixed(2)}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-gray-500 mb-1">Margen %</p>
-              <p className="text-2xl font-bold text-blue-600">{resumen.porcentajeMargen.toFixed(1)}%</p>
-            </div>
+          <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Card>
+              <CardBody>
+                <p className="mb-1 text-sm text-ink-muted">Ingresos</p>
+                <p className="font-display text-2xl font-semibold text-ink numeric">
+                  {money(resumen.ingresosTotales)}
+                </p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="mb-1 text-sm text-ink-muted">Costos</p>
+                <p className="font-display text-2xl font-semibold text-ink numeric">
+                  {money(resumen.costosTotales)}
+                </p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="mb-1 text-sm text-ink-muted">Margen</p>
+                <p
+                  className={`font-display text-2xl font-semibold numeric ${
+                    resumen.margenTotal < 0 ? 'text-danger' : 'text-success'
+                  }`}
+                >
+                  {money(resumen.margenTotal)}
+                </p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="mb-1 text-sm text-ink-muted">Margen %</p>
+                <p
+                  className={`font-display text-2xl font-semibold numeric ${
+                    resumen.porcentajeMargen < 0 ? 'text-danger' : 'text-success'
+                  }`}
+                >
+                  {percent(resumen.porcentajeMargen)}
+                </p>
+              </CardBody>
+            </Card>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <h2 className="text-lg font-semibold mb-4">Margen por Tamaño</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+          <Card className="mb-8">
+            <CardHeader title="Margen por Tamaño" />
+            <CardBody className="overflow-x-auto p-0">
+              <table className="w-full text-sm">
+                <thead className="bg-petal">
                   <tr>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Tamaño</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Cantidad</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Ingresos</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Costos</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Margen</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">% Margen</th>
+                    <th scope="col" className="px-4 py-2 text-left text-sm font-medium text-ink-muted">
+                      Tamaño
+                    </th>
+                    <th scope="col" className="px-4 py-2 text-right text-sm font-medium text-ink-muted numeric">
+                      Cantidad
+                    </th>
+                    <th scope="col" className="px-4 py-2 text-right text-sm font-medium text-ink-muted numeric">
+                      Ingresos
+                    </th>
+                    <th scope="col" className="px-4 py-2 text-right text-sm font-medium text-ink-muted numeric">
+                      Costos
+                    </th>
+                    <th scope="col" className="px-4 py-2 text-right text-sm font-medium text-ink-muted numeric">
+                      Margen
+                    </th>
+                    <th scope="col" className="px-4 py-2 text-right text-sm font-medium text-ink-muted numeric">
+                      % Margen
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-line">
                   {resumen.margenesPorTamano.map((m) => (
                     <tr key={m.tamano}>
-                      <td className="px-4 py-2 font-medium">{m.tamano}</td>
-                      <td className="px-4 py-2 text-right">{m.cantidad}</td>
-                      <td className="px-4 py-2 text-right">S/ {m.ingresos.toFixed(2)}</td>
-                      <td className="px-4 py-2 text-right">S/ {m.costos.toFixed(2)}</td>
-                      <td className="px-4 py-2 text-right font-medium text-green-600">S/ {m.margen.toFixed(2)}</td>
-                      <td className="px-4 py-2 text-right">{m.porcentajeMargen.toFixed(1)}%</td>
+                      <td className="px-4 py-2 font-medium">{labelTamano(m.tamano)}</td>
+                      <td className="px-4 py-2 text-right numeric">{m.cantidad}</td>
+                      <td className="px-4 py-2 text-right numeric">{money(m.ingresos)}</td>
+                      <td className="px-4 py-2 text-right numeric">{money(m.costos)}</td>
+                      <td
+                        className={`px-4 py-2 text-right font-medium numeric ${
+                          m.margen < 0 ? 'text-danger' : 'text-success'
+                        }`}
+                      >
+                        {money(m.margen)}
+                      </td>
+                      <td className="px-4 py-2 text-right numeric">{percent(m.porcentajeMargen)}</td>
                     </tr>
                   ))}
                   {resumen.margenesPorTamano.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-4 text-center text-gray-500">
+                      <td colSpan={6} className="px-4 py-4 text-center text-sm text-ink-muted">
                         No hay datos en este período
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         </>
       )}
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold mb-4">Pedidos Pendientes</h2>
-          {pendientes.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No hay pedidos pendientes</p>
-          ) : (
-            <div className="space-y-3">
-              {pendientes.map((p) => (
-                <div key={p.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{p.clienteNombre}</p>
-                      <p className="text-sm text-gray-500">
-                        {p.items.map(i => `${i.nombre} x${i.cantidad}`).join(', ')}
-                      </p>
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card>
+          <CardHeader title="Pedidos Pendientes" />
+          <CardBody>
+            {pendientes.length === 0 ? (
+              <EmptyState title="No hay pedidos pendientes" />
+            ) : (
+              <div className="space-y-3">
+                {pendientes.map((p) => (
+                  <div
+                    key={p.id}
+                    className="rounded-tight border border-line p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-ink">{p.clienteNombre}</p>
+                        <p className="text-sm text-ink-muted">
+                          {p.items.map((i) => `${i.nombre} x${i.cantidad}`).join(', ')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-ink numeric">{money(p.montoTotal)}</p>
+                        <Badge tone={p.estado === 'Pendiente' ? 'warning' : 'neutral'}>
+                          {p.estado === 'Pendiente' ? 'Pendiente' : 'En Preparación'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Ramos Más Vendidos" />
+          <CardBody>
+            {masVendidos.length === 0 ? (
+              <EmptyState title="No hay ventas en este período" />
+            ) : (
+              <div className="space-y-3">
+                {masVendidos.map((r, i) => (
+                  <div key={r.id} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-petal text-sm font-medium text-ink-muted">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <p className="font-medium text-ink">{r.nombre}</p>
+                        <p className="text-sm text-ink-muted">{labelTamano(r.tamano)}</p>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-rose-600">S/ {p.montoTotal.toFixed(2)}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        p.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {p.estado === 'Pendiente' ? 'Pendiente' : 'En Preparación'}
-                      </span>
+                      <p className="font-medium text-ink">{r.cantidad} vendidos</p>
+                      <p className="text-sm text-ink-muted numeric">{money(r.ingresos)}</p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold mb-4">Ramos Más Vendidos</h2>
-          {masVendidos.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No hay ventas en este período</p>
-          ) : (
-            <div className="space-y-3">
-              {masVendidos.map((r, i) => (
-                <div key={r.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-sm font-medium">
-                      {i + 1}
-                    </span>
-                    <div>
-                      <p className="font-medium">{r.nombre}</p>
-                      <p className="text-sm text-gray-500">{r.tamano}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{r.cantidad} vendidos</p>
-                    <p className="text-sm text-gray-500">S/ {r.ingresos.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
