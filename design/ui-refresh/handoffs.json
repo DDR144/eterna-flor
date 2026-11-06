@@ -3,12 +3,13 @@
   "chosen": "02-candy-counter.html",
   "handoffs": {
     "02-candy-counter.html": {
-      "status": "in_progress",
+      "status": "implemented",
       "queued": false,
       "sentAt": "2026-11-06T10:09:44.080Z",
       "startedAt": "2026-11-06T10:09:58.109Z",
-      "implementedAt": null,
-      "note": "Unificando tokens Pastel Candy con contrastes corregidos en globals.css, luego catálogo, login y panel admin"
+      "implementedAt": "2026-11-06T10:20:43.085Z",
+      "note": "Pastel Candy implementado en toda la app: 13 tokens en globals.css, capa components/ui, catálogo, login y las cuatro pantallas del admin. tsc y build en verde; lint bajó de 28 a 18 problemas.",
+      "previewUrl": "http://127.0.0.1:3000/catalogo"
     }
   }
 }
