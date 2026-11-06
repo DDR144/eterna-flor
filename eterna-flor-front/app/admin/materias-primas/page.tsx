@@ -1,7 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { money } from '@/lib/format';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Icon,
+  Input,
+  Spinner,
+} from '@/components/ui';
 
 interface MateriaPrima {
   id: number;
@@ -13,22 +24,41 @@ interface MateriaPrima {
   alertaStock: boolean;
 }
 
+const emptyForm = {
+  nombre: '',
+  unidad: '',
+  stockActual: '',
+  costoUnitario: '',
+  stockMinimoAlerta: '5',
+};
+
 export default function MateriasPrimasPage() {
   const [materias, setMaterias] = useState<MateriaPrima[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({
-    nombre: '',
-    unidad: '',
-    stockActual: '',
-    costoUnitario: '',
-    stockMinimoAlerta: '5',
-  });
+  const [formError, setFormError] = useState('');
+  const [form, setForm] = useState(emptyForm);
+
+  const resetForm = useCallback(() => {
+    setForm(emptyForm);
+    setFormError('');
+    setShowForm(false);
+    setEditingId(null);
+  }, []);
 
   useEffect(() => {
     loadMaterias();
   }, []);
+
+  useEffect(() => {
+    if (!showForm) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') resetForm();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showForm, resetForm]);
 
   async function loadMaterias() {
     try {
@@ -43,6 +73,8 @@ export default function MateriasPrimasPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setFormError('');
+
     try {
       const data = {
         nombre: form.nombre,
@@ -58,12 +90,12 @@ export default function MateriasPrimasPage() {
         await api.materiasPrimas.create(data);
       }
 
-      setForm({ nombre: '', unidad: '', stockActual: '', costoUnitario: '', stockMinimoAlerta: '5' });
-      setShowForm(false);
-      setEditingId(null);
+      resetForm();
       loadMaterias();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error');
+      setFormError(
+        err instanceof Error ? err.message : 'No se pudo guardar la materia prima.',
+      );
     }
   }
 
@@ -75,6 +107,7 @@ export default function MateriasPrimasPage() {
       costoUnitario: String(materia.costoUnitario),
       stockMinimoAlerta: String(materia.stockMinimoAlerta),
     });
+    setFormError('');
     setEditingId(materia.id);
     setShowForm(true);
   }
@@ -89,159 +122,265 @@ export default function MateriasPrimasPage() {
     }
   }
 
-  if (loading) return <div className="text-center py-8">Cargando...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner label="Cargando materias primas" />
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Materias Primas</h1>
-        <button
-          onClick={() => { setShowForm(true); setEditingId(null); setForm({ nombre: '', unidad: '', stockActual: '', costoUnitario: '', stockMinimoAlerta: '5' }); }}
-          className="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700"
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <p className="text-sm text-ink-muted">
+          {materias.length === 1
+            ? '1 materia prima registrada'
+            : `${materias.length} materias primas registradas`}
+        </p>
+        <Button
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
         >
-          + Nueva Materia Prima
-        </button>
+          <Icon name="mas" className="h-4 w-4" />
+          Nueva Materia Prima
+        </Button>
       </div>
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              {editingId ? 'Editar' : 'Nueva'} Materia Prima
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                <input
+      {showForm ? (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-ink/40 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) resetForm();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-formulario-materia"
+            className="my-8 w-full max-w-lg animate-fade-in rounded-lush border border-line bg-surface"
+          >
+            <div className="flex items-center justify-between border-b border-line px-6 py-4">
+              <h2
+                id="titulo-formulario-materia"
+                className="font-display text-lg font-semibold text-ink"
+              >
+                {editingId ? 'Editar' : 'Nueva'} Materia Prima
+              </h2>
+              <button
+                type="button"
+                onClick={resetForm}
+                aria-label="Cerrar formulario"
+                className="rounded-tight p-1.5 text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                <Icon name="cerrar" className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5 px-6 py-5">
+              {formError ? (
+                <p
+                  role="alert"
+                  className="rounded-tight border border-danger/40 bg-danger/5 px-3 py-2 text-sm text-danger"
+                >
+                  {formError}
+                </p>
+              ) : null}
+
+              <Field label="Nombre" name="nombre" required>
+                <Input
                   type="text"
                   value={form.nombre}
-                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  required
+                  onChange={(e) =>
+                    setForm({ ...form, nombre: e.target.value })
+                  }
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unidad</label>
-                <input
+              </Field>
+
+              <Field label="Unidad" name="unidad" required>
+                <Input
                   type="text"
                   value={form.unidad}
-                  onChange={(e) => setForm({ ...form, unidad: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, unidad: e.target.value })
+                  }
                   placeholder="ej: metros, unidades, rollos"
-                  className="w-full px-3 py-2 border rounded-lg"
-                  required
                 />
-              </div>
+              </Field>
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock Actual</label>
-                  <input
+                <Field label="Stock Actual" name="stockActual" required>
+                  <Input
                     type="number"
                     step="0.01"
+                    min="0"
+                    inputMode="decimal"
                     value={form.stockActual}
-                    onChange={(e) => setForm({ ...form, stockActual: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg"
-                    required
+                    onChange={(e) =>
+                      setForm({ ...form, stockActual: e.target.value })
+                    }
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Costo Unitario (S/)</label>
-                  <input
+                </Field>
+
+                <Field
+                  label="Costo Unitario (S/)"
+                  name="costoUnitario"
+                  required
+                >
+                  <Input
                     type="number"
                     step="0.01"
+                    min="0"
+                    inputMode="decimal"
                     value={form.costoUnitario}
-                    onChange={(e) => setForm({ ...form, costoUnitario: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg"
-                    required
+                    onChange={(e) =>
+                      setForm({ ...form, costoUnitario: e.target.value })
+                    }
                   />
-                </div>
+                </Field>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo de Alerta</label>
-                <input
+
+              <Field
+                label="Stock Mínimo de Alerta"
+                name="stockMinimoAlerta"
+              >
+                <Input
                   type="number"
+                  min="0"
+                  inputMode="numeric"
                   value={form.stockMinimoAlerta}
-                  onChange={(e) => setForm({ ...form, stockMinimoAlerta: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  onChange={(e) =>
+                    setForm({ ...form, stockMinimoAlerta: e.target.value })
+                  }
                 />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-rose-600 text-white py-2 rounded-lg hover:bg-rose-700"
-                >
+              </Field>
+
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" className="flex-1">
                   {editingId ? 'Actualizar' : 'Crear'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowForm(false); setEditingId(null); }}
-                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={resetForm}
+                  className="flex-1"
                 >
                   Cancelar
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </div>
-      )}
+      ) : null}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Nombre</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Unidad</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Stock</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Costo Unit.</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Estado</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {materias.map((m) => (
-                <tr key={m.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-800">{m.nombre}</td>
-                  <td className="px-4 py-3 text-gray-600">{m.unidad}</td>
-                  <td className="px-4 py-3 text-gray-800 font-medium">{m.stockActual}</td>
-                  <td className="px-4 py-3 text-gray-600">S/ {m.costoUnitario.toFixed(2)}</td>
-                  <td className="px-4 py-3">
-                    {m.alertaStock ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                        Stock bajo
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        Normal
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleEdit(m)}
-                      className="text-rose-600 hover:text-rose-800 text-sm mr-3"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(m.id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {materias.length === 0 && (
+      {materias.length === 0 ? (
+        <EmptyState
+          title="No hay materias primas registradas"
+          action={
+            <Button
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+            >
+              <Icon name="mas" className="h-4 w-4" />
+              Nueva Materia Prima
+            </Button>
+          }
+        />
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-petal">
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                    No hay materias primas registradas
-                  </td>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-sm font-semibold text-ink-muted"
+                  >
+                    Nombre
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-sm font-semibold text-ink-muted"
+                  >
+                    Unidad
+                  </th>
+                  <th
+                    scope="col"
+                    className="numeric px-4 py-3 text-right text-sm font-semibold text-ink-muted"
+                  >
+                    Stock
+                  </th>
+                  <th
+                    scope="col"
+                    className="numeric px-4 py-3 text-right text-sm font-semibold text-ink-muted"
+                  >
+                    Costo Unit.
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-sm font-semibold text-ink-muted"
+                  >
+                    Estado
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right text-sm font-semibold text-ink-muted"
+                  >
+                    Acciones
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {materias.map((m) => (
+                  <tr
+                    key={m.id}
+                    className="transition-colors duration-150 hover:bg-petal"
+                  >
+                    <td className="px-4 py-3 text-sm text-ink">{m.nombre}</td>
+                    <td className="px-4 py-3 text-sm text-ink-muted">
+                      {m.unidad}
+                    </td>
+                    <td className="numeric px-4 py-3 text-right text-sm font-medium text-ink">
+                      {m.stockActual}
+                    </td>
+                    <td className="numeric px-4 py-3 text-right text-sm text-ink-muted">
+                      {money(m.costoUnitario)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {m.alertaStock ? (
+                        <Badge tone="danger">Stock bajo</Badge>
+                      ) : (
+                        <Badge tone="success">Normal</Badge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(m)}
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(m.id)}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
