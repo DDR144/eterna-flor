@@ -159,3 +159,26 @@ L22 (por qué los workers no corren build): los cuatro restyles de T9–T12 comp
 **Corrección de un error propio durante la fase:** la instrucción inicial a los cuatro workers pedía un `<h1>` por página. El shell del admin ya renderiza el único `<h1>` (`app/admin/layout.tsx:165-166`), así que la instrucción producía dos encabezados de nivel 1. Se detectó al revisar el retorno del worker de `materias-primas`, se corrigió ese archivo a mano y se avisó a los dos workers que seguían en vuelo (`pedidos`, `reportes`) antes de que terminaran. Resultado: `<h1>` por página = 0 en las tres pantallas.
 
 **No verificado todavía:** el aspecto renderizado en navegador. No hay backend levantado, así que `/catalogo` muestra su estado vacío y las pantallas del admin no tienen datos. La comparación visual contra el artboard queda pendiente de un entorno con API y base de datos.
+
+## Estrategia de entrega
+
+La rama supera el slice de ~400 líneas si se mira entera, así que se entrega como **cadena de unidades revisables**, no como un solo diff. El orden de revisión es el orden de los commits, y cada uno es autosuficiente:
+
+| # | Unidad | Alcance |
+|---|---|---|
+| 1 | `feat(front): add a shared number formatter` | 1 helper nuevo + 1 pantalla que lo consume |
+| 2 | `docs: align DESIGN.md with the contrast corrections` | 1 documento, sin código |
+| 3 | `feat(front): migrate the catalog to design tokens` | 1 pantalla pública + 1 layout eliminado |
+| 4 | `feat(front): migrate the login screen to design tokens` | 1 pantalla |
+| 5–7 | `materias primas` / `pedidos` / `reportes` | 1 pantalla cada una |
+| 8 | `feat(front): use the shared spinner on the root redirect` | 1 archivo de 25 líneas |
+| 9 | `docs(design): capture the implemented design system` | 2 documentos de diseño |
+| 10 | `docs(odd): record the ui-design-system phase 2` | este documento |
+
+Los commits 5, 6 y 7 son independientes entre sí y se pueden revisar en cualquier orden o en paralelo. La rama no se empuja: push y PR son decisiones del usuario.
+
+Frontera de slice: hasta `4eb3dff` inclusive. Cualquier trabajo posterior de frontend (por ejemplo `next/image` con `remotePatterns`, o un runner de tests) abre un slice nuevo en otra rama.
+
+**Defecto preexistente encontrado y corregido en verificación:** `getRamos` capturaba `!res.ok` pero no una excepción de red, así que con la API caída el catálogo público devolvía 500 en lugar de su estado vacío. Detectado al levantar el dev server (`ECONNREFUSED` contra el backend NestJS). Corregido en `a2a9253`; es independiente de la migración visual y habría roto cualquier comparación contra el artboard.
+
+**Estado del entorno de verificación:** dev server en `http://127.0.0.1:3000` sirviendo `/catalogo` y `/login` en 200 con los tokens nuevos. El backend no está levantado, así que el catálogo muestra su estado vacío y las pantallas del admin no tienen datos; la comparación visual es de estructura y tipografía, no de contenido.
