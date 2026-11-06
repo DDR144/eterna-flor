@@ -10,3 +10,9 @@ coverage/
 *.tsbuildinfo
 next-env.d.ts
 .codegraph/
+
+# Local agent tooling (installed skills, symlinks, lockfile). Reinstallable with
+# `npx skills add`; not part of the application source.
+.agents/
+.claude/
+skills-lock.json
