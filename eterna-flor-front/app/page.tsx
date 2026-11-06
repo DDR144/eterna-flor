@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
+import { Spinner } from '@/components/ui';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -19,8 +20,8 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-rose-600">Cargando...</div>
+    <div className="flex min-h-screen items-center justify-center bg-petal">
+      <Spinner label="Cargando" />
     </div>
   );
 }
