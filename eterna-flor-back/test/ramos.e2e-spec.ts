@@ -10,7 +10,13 @@ import { assertLocalDatabase } from './helpers/database-guard';
 
 const TEST_ADMIN_EMAIL = 'test-admin@example.com';
 const TEST_MATERIA_PRIMA_NOMBRE = 'Rosa de prueba';
-const TEST_RAMO_NOMBRE_PREFIX = 'Ramo ';
+// Cleanup prefixes are a de facto contract between the scripts that share this
+// database: this suite deletes every row it created in a previous run by
+// matching this prefix, so the prefix must never match a name a person would
+// type by hand. The seed uses '[prueba] '; this suite uses '[e2e] '. A bare
+// 'Ramo ' would delete any handmade bouquet whose name starts with it.
+const TEST_RAMO_NOMBRE_PREFIX = '[e2e] Ramo ';
+const testRamoName = (suffix: string) => `${TEST_RAMO_NOMBRE_PREFIX}${suffix}`;
 const TEST_PASSWORD = 'password123';
 
 describe('RamosController (e2e)', () => {
@@ -120,6 +126,12 @@ describe('RamosController (e2e)', () => {
     }
   });
 
+  it('cleanup never targets a name a person would write by hand', () => {
+    expect('Ramo de rosas rojas'.startsWith(TEST_RAMO_NOMBRE_PREFIX)).toBe(
+      false,
+    );
+  });
+
   it('POST /ramos with missing nombre -> 400', async () => {
     const res = await request(app.getHttpServer())
       .post('/ramos')
@@ -133,7 +145,7 @@ describe('RamosController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo X')
+      .field('nombre', testRamoName('X'))
       .field('tamano', 'Gigante')
       .field('precioVenta', '10.50');
     expect(res.status).toBe(400);
@@ -143,7 +155,7 @@ describe('RamosController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo X')
+      .field('nombre', testRamoName('X'))
       .field('tamano', 'Mediano')
       .field('precioVenta', '10.50')
       .field('recetas', 'not-json');
@@ -154,7 +166,7 @@ describe('RamosController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo E2E')
+      .field('nombre', testRamoName('E2E'))
       .field('tamano', 'Mediano')
       .field('precioVenta', '25.00')
       .field('stock', '10')
@@ -163,7 +175,7 @@ describe('RamosController (e2e)', () => {
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
       id: expect.any(Number),
-      nombre: 'Ramo E2E',
+      nombre: testRamoName('E2E'),
       tamano: 'Mediano',
       precioVenta: 25,
       stock: 10,
@@ -192,14 +204,14 @@ describe('RamosController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo sin stock')
+      .field('nombre', testRamoName('sin stock'))
       .field('tamano', 'Pequeño')
       .field('precioVenta', '15.00')
       .field('recetas', '[]');
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
-      nombre: 'Ramo sin stock',
+      nombre: testRamoName('sin stock'),
       tamano: 'Pequeno',
       precioVenta: 15,
       stock: 0,
@@ -213,7 +225,7 @@ describe('RamosController (e2e)', () => {
     const createRes = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo receta con nombre')
+      .field('nombre', testRamoName('receta con nombre'))
       .field('tamano', 'Mediano')
       .field('precioVenta', '30.00')
       .field('recetas', JSON.stringify([{ materiaPrimaId, cantidad: 2 }]));
@@ -247,7 +259,7 @@ describe('RamosController (e2e)', () => {
     const createRes = await request(app.getHttpServer())
       .post('/ramos')
       .set('Authorization', `Bearer ${token}`)
-      .field('nombre', 'Ramo campo desconocido')
+      .field('nombre', testRamoName('campo desconocido'))
       .field('tamano', 'Mediano')
       .field('precioVenta', '30.00')
       .field('recetas', JSON.stringify([{ materiaPrimaId, cantidad: 2 }]));

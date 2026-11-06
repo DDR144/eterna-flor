@@ -71,14 +71,13 @@ Además, de otras sesiones: **seed de datos locales** (`pnpm run seed`, usuario 
 | Pendiente | Depende de |
 |---|---|
 | Definir el destino de `feat/ui-design-system` (5 commits, ~1035 líneas sin revisar) | Decisión del usuario. Bloquea el resto del trabajo de frontend |
-| El prefijo de limpieza `'Ramo '` del e2e es demasiado genérico: borraría cualquier ramo hecho a mano que empiece así | Cualquiera. Riesgo real |
 | Limpiar el ramo de prueba `ramo one` (id 1) de la base de producción: aparece en el catálogo público | Usuario |
 | Monitor externo (UptimeRobot, cada 5 min a `/health`) | Usuario, 5 minutos |
 | `.agents/`, `.claude/` y `skills-lock.json` están sin trackear en la raíz y ensucian el estado del repo | Cualquiera. Dos líneas en `.gitignore` |
 | Alinear la documentación vieja: `AGENTS.md` y `docs/architecture/*` describen una infraestructura que no existe | Nadie |
 | Paginación | **Recomendación: no hacerla.** Una sola usuaria, pocos datos, y cambiaría el contrato de una API en vivo |
 
-Resuelto desde la primera versión de este documento: los valores de enum ya se muestran con acento (`57063de`), `GET /pedidos?estado=En preparación` ya se acepta (`06d6d69`), y Cloudinary está configurado.
+Resuelto desde la primera versión de este documento: los valores de enum ya se muestran con acento (`57063de`), `GET /pedidos?estado=En preparación` ya se acepta (`06d6d69`), Cloudinary está configurado, y el prefijo de limpieza del e2e pasó de `'Ramo '` a `'[e2e] Ramo '`, así que ya no borra ramos hechos a mano.
 
 ## 7. Trampas conocidas
 
