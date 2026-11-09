@@ -1,0 +1,27 @@
+{
+  "title": "EternaFlor — logo",
+  "brief": "Tres logos completos para EternaFlor, no tres iconos. El icono actual (una E en un cuadrado) sirve para la pestaña pero no dice nada del negocio: el nombre es Eterna + Flor, así que la flor tiene que estar en la marca. Cada dirección define símbolo, tipografía, proporciones, versión invertida y medida mínima. Tipografía real: Fraunces; los artboards usan una serif del sistema porque las reglas de la skill prohíben fuentes externas.",
+  "artboards": [
+    {
+      "file": "01-flor-horizontal.html",
+      "title": "Flor + nombre horizontal",
+      "tradeoff": "La flor dice el negocio y el nombre lo confirma. El más inmediato y el que mejor aguanta cualquier tamaño; a cambio es el menos singular: una flor junto a un nombre es lo que hace casi cualquier florería.",
+      "width": 1440,
+      "height": 1250
+    },
+    {
+      "file": "02-flor-en-el-nombre.html",
+      "title": "La flor dentro del nombre",
+      "tradeoff": "No hay símbolo aparte: la 'o' final de EternaFlor es la flor, así que marca y nombre son el mismo objeto. El más elegante y memorable; por debajo de ~20 px la flor se vuelve un punto, así que exige un icono derivado.",
+      "width": 1440,
+      "height": 1150
+    },
+    {
+      "file": "03-emblema-vertical.html",
+      "title": "Emblema vertical",
+      "tradeoff": "Símbolo arriba, nombre abajo y el descriptor separado por un filete. El que más se siente de marca propia y el que mejor funciona impreso; ocupa mucho alto, no cabe en una barra de navegación y obliga a mantener una versión compacta.",
+      "width": 1440,
+      "height": 1300
+    }
+  ]
+}

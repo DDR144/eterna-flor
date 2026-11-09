@@ -1,0 +1,34 @@
+{
+  "title": "Pedidos — listado",
+  "brief": "Cuatro formas de presentar el listado de pedidos en el panel de EternaFlor, con 12 pedidos para ver la densidad real. Hoy es una pila de tarjetas a todo el ancho que se siente vacía. Todas usan los tokens reales de app/globals.css y la forma de datos que devuelve la API (cliente, whatsapp, estado, método de pago, total, fecha de entrega, ítems con ramo y cantidad).",
+  "artboards": [
+    {
+      "file": "01-tabla-densa.html",
+      "title": "Tabla densa",
+      "tradeoff": "Un pedido por fila con las columnas que se comparan de un vistazo. Lo más rápido de escanear y llena el ancho sin aire muerto; el detalle de los ítems queda a un clic y se pierde el aspecto de ficha.",
+      "width": 1440,
+      "height": 1150
+    },
+    {
+      "file": "02-fichas-cuadricula.html",
+      "title": "Fichas en cuadrícula",
+      "tradeoff": "Cada pedido es una ficha con sus ramos, su total y su fecha a la vista, en dos columnas que ocupan el ancho. Llena el espacio y se lee como ficha de trabajo; se ven menos pedidos a la vez y comparar importes entre filas es más difícil.",
+      "width": 1440,
+      "height": 1750
+    },
+    {
+      "file": "03-tablero-estado.html",
+      "title": "Tablero por estado",
+      "tradeoff": "Cuatro columnas donde el estado es la posición, no una etiqueta. Responde \"qué me falta hoy\" de un vistazo y llena el ancho por sí solo; exige pantalla ancha, no ordena por fecha y crece hacia abajo si un estado se llena.",
+      "width": 1440,
+      "height": 1250
+    },
+    {
+      "file": "04-agenda-entrega.html",
+      "title": "Agenda por entrega",
+      "tradeoff": "El eje es la fecha de entrega: cada día es una banda con su fecha a la izquierda y sus pedidos a la derecha, con hoy marcado. Responde \"qué debo tener listo y cuándo\", que es lo que ordena una florería, y llena el ancho de forma natural; agrupa por fecha en vez de por estado, así que un pedido atrasado no salta solo.",
+      "width": 1440,
+      "height": 1200
+    }
+  ]
+}

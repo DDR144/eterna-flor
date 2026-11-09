@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 — Flor + nombre horizontal · EternaFlor</title>
+<style>
+  :root{
+    --ink:#3a2747; --ink-muted:#6e5a7a; --surface:#ffffff;
+    --petal:#fbe4ee; --petal-deep:#ecc0d5;
+    --line:#dfbccf; --line-strong:#c99ab4;
+    --blossom:#ff8ab8; --blossom-deep:#f2659c;
+    --display:"Iowan Old Style",Georgia,"Palatino Linotype",serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--petal);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,p{margin:0;}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+  .ribbon{background:var(--ink);color:#fff;padding:12px 28px;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;font-size:0.8125rem;}
+  .ribbon strong{font-size:0.875rem;} .ribbon span{color:#ecc0d5;} .ribbon em{font-style:normal;color:var(--blossom);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 32px 56px;}
+  .bloque{margin-bottom:34px;}
+  .bloque > h2{
+    font-family:var(--body);font-size:0.625rem;font-weight:800;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--ink-muted);
+    padding-bottom:9px;margin-bottom:16px;border-bottom:1px solid var(--line);
+  }
+  .panel{border-radius:32px;border:1px solid var(--line);background:var(--surface);
+    box-shadow:0 2px 10px -4px rgba(58,39,71,0.10);
+    display:flex;align-items:center;justify-content:center;min-height:190px;padding:40px;}
+  .panel.oscuro{background:var(--ink);border-color:var(--ink);}
+  .panel.hondo{background:var(--petal-deep);border-color:var(--line-strong);}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+  /* ── el logo: símbolo + nombre ── */
+  .logo{display:inline-flex;align-items:center;gap:0.42em;font-family:var(--display);
+    font-weight:600;letter-spacing:-0.028em;line-height:1;color:var(--ink);}
+  .logo .marca{width:1.02em;height:1.02em;flex:0 0 auto;display:block;}
+  .logo .nombre{display:block;padding-bottom:0.06em;}
+  .logo.invertido{color:var(--surface);}
+
+  .lg{font-size:52px;}
+  .md{font-size:34px;}
+  .sm{font-size:22px;}
+
+  /* fila de tamaños */
+  .fila{display:flex;align-items:flex-end;gap:44px;flex-wrap:wrap;}
+  .fila figure{display:grid;gap:8px;justify-items:center;}
+  .fila figcaption{font-family:var(--mono);font-size:0.625rem;color:var(--ink-muted);}
+  .solo-marca{display:block;}
+
+  .nota{margin-top:12px;font-size:0.75rem;color:var(--ink-muted);max-width:78ch;}
+  .nota b{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <strong>01 · Flor + nombre horizontal</strong>
+  <span><em>Estrategia:</em> la flor dice el negocio, el nombre lo confirma. Un símbolo sólido de cuatro pétalos y la palabra en serif, con una proporción fija entre ambos.</span>
+  <span><em>Tradeoff:</em> es el más inmediato y el que mejor aguanta cualquier tamaño; a cambio es el menos singular — una flor junto a un nombre es lo que hace casi cualquier florería.</span>
+</div>
+
+<div class="wrap">
+
+  <section class="bloque">
+    <h2>Versión principal — fondo claro</h2>
+    <div class="panel">
+      <span class="logo lg">
+        <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+          <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+        </svg>
+        <span class="nombre">EternaFlor</span>
+      </span>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <h2>Versión invertida — fondo oscuro</h2>
+    <div class="panel oscuro">
+      <span class="logo lg invertido">
+        <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+          <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+        </svg>
+        <span class="nombre">EternaFlor</span>
+      </span>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <h2>Escala real — el logo no puede depender del tamaño</h2>
+    <div class="panel">
+      <div class="fila">
+        <figure>
+          <span class="logo md">
+            <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+              <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+            </svg>
+            <span class="nombre">EternaFlor</span>
+          </span>
+          <figcaption>34 px</figcaption>
+        </figure>
+        <figure>
+          <span class="logo sm">
+            <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+              <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+            </svg>
+            <span class="nombre">EternaFlor</span>
+          </span>
+          <figcaption>22 px</figcaption>
+        </figure>
+        <figure>
+          <svg class="solo-marca" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+            <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+          </svg>
+          <figcaption>símbolo 32 px</figcaption>
+        </figure>
+        <figure>
+          <svg class="solo-marca" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+            <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+          </svg>
+          <figcaption>favicon 16 px</figcaption>
+        </figure>
+      </div>
+    </div>
+    <p class="nota">El símbolo va <b>sólido y sin contorno</b>: la prueba con el favicon mostró que un trazo de 2 px se come la forma a 16 px y desaparece sobre fondo oscuro.</p>
+  </section>
+
+  <section class="bloque">
+    <h2>Reglas de uso</h2>
+    <div class="dos">
+      <div class="panel hondo" style="min-height:150px">
+        <span class="logo md">
+          <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ff8ab8"/>
+            <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+          </svg>
+          <span class="nombre">EternaFlor</span>
+        </span>
+      </div>
+      <div class="panel hondo" style="min-height:150px;background:#fff">
+        <span class="logo md" style="color:#3a2747">
+          <svg class="marca" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M 12.5 12.5 C 10 7.5 11 3 16 3 C 21 3 22 7.5 19.5 12.5 C 24.5 10 29 11 29 16 C 29 21 24.5 22 19.5 19.5 C 22 24.5 21 29 16 29 C 11 29 10 24.5 12.5 19.5 C 7.5 22 3 21 3 16 C 3 11 7.5 10 12.5 12.5 Z" fill="#ecc0d5"/>
+            <circle cx="16" cy="16" r="4" fill="#3a2747"/>
+          </svg>
+          <span class="nombre">EternaFlor</span>
+        </span>
+      </div>
+    </div>
+    <p class="nota">Proporción fija: el símbolo mide <b>1,02 em</b> del tamaño del nombre y la separación es de <b>0,42 em</b>. El símbolo nunca se escala por separado. Sobre rosa intermedio se usa la variante de pétalos <b>petal-deep</b> para no vibrar con el fondo.</p>
+  </section>
+
+</div>
+</body>
+</html>

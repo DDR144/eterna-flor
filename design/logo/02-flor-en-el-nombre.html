@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 — La flor dentro del nombre · EternaFlor</title>
+<style>
+  :root{
+    --ink:#3a2747; --ink-muted:#6e5a7a; --surface:#ffffff;
+    --petal:#fbe4ee; --petal-deep:#ecc0d5;
+    --line:#dfbccf; --line-strong:#c99ab4;
+    --blossom:#ff8ab8; --blossom-deep:#f2659c;
+    --display:"Iowan Old Style",Georgia,"Palatino Linotype",serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--petal);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,p{margin:0;}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+  .ribbon{background:var(--ink);color:#fff;padding:12px 28px;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;font-size:0.8125rem;}
+  .ribbon strong{font-size:0.875rem;} .ribbon span{color:#ecc0d5;} .ribbon em{font-style:normal;color:var(--blossom);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 32px 56px;}
+  .bloque{margin-bottom:34px;}
+  .bloque > h2{font-size:0.625rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--ink-muted);padding-bottom:9px;margin-bottom:16px;border-bottom:1px solid var(--line);}
+  .panel{border-radius:32px;border:1px solid var(--line);background:var(--surface);
+    box-shadow:0 2px 10px -4px rgba(58,39,71,0.10);
+    display:flex;align-items:center;justify-content:center;min-height:190px;padding:40px;}
+  .panel.oscuro{background:var(--ink);border-color:var(--ink);}
+  .panel.hondo{background:var(--petal-deep);border-color:var(--line-strong);}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+  /* ── el logo: la palabra, con la flor ocupando la "o" final ── */
+  .logo{font-family:var(--display);font-weight:600;letter-spacing:-0.028em;
+    line-height:1;color:var(--ink);white-space:nowrap;}
+  .logo .flor{
+    display:inline-block;width:0.62em;height:0.62em;
+    vertical-align:-0.02em;margin:0 0.012em;
+  }
+  .logo.invertido{color:var(--surface);}
+  .lg{font-size:56px;} .md{font-size:34px;} .sm{font-size:22px;} .xs{font-size:15px;}
+
+  .fila{display:flex;align-items:flex-end;gap:44px;flex-wrap:wrap;}
+  .fila figure{display:grid;gap:8px;justify-items:center;}
+  .fila figcaption{font-family:var(--mono);font-size:0.625rem;color:var(--ink-muted);}
+
+  .nota{margin-top:12px;font-size:0.75rem;color:var(--ink-muted);max-width:78ch;}
+  .nota b{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <strong>02 · La flor dentro del nombre</strong>
+  <span><em>Estrategia:</em> no hay símbolo aparte. La "o" final de EternaFlor es la flor, así que la marca y el nombre son el mismo objeto.</span>
+  <span><em>Tradeoff:</em> es el más elegante y el más memorable de los tres; a cambio, por debajo de ~20 px la flor se convierte en un punto y el nombre pierde su única señal, así que necesita un icono propio derivado.</span>
+</div>
+
+<div class="wrap">
+
+  <section class="bloque">
+    <h2>Versión principal — fondo claro</h2>
+    <div class="panel">
+      <span class="logo lg">EternaFl<svg class="flor" viewBox="0 0 32 32" aria-hidden="true">
+        <g fill="#ff8ab8">
+          <circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/>
+          <circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/>
+          <circle cx="7.4" cy="13.2" r="6.4"/>
+        </g>
+        <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+      </svg>r</span>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <h2>Versión invertida — fondo oscuro</h2>
+    <div class="panel oscuro">
+      <span class="logo lg invertido">EternaFl<svg class="flor" viewBox="0 0 32 32" aria-hidden="true">
+        <g fill="#ff8ab8">
+          <circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/>
+          <circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/>
+          <circle cx="7.4" cy="13.2" r="6.4"/>
+        </g>
+        <circle cx="16" cy="16" r="3.6" fill="#ff8ab8"/>
+        <circle cx="16" cy="16" r="3.6" fill="none" stroke="#3a2747" stroke-width="2.2"/>
+      </svg>r</span>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <h2>Dónde se rompe — y por qué importa</h2>
+    <div class="panel">
+      <div class="fila">
+        <figure>
+          <span class="logo md">EternaFl<svg class="flor" viewBox="0 0 32 32" aria-hidden="true">
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>r</span>
+          <figcaption>34 px — funciona</figcaption>
+        </figure>
+        <figure>
+          <span class="logo sm">EternaFl<svg class="flor" viewBox="0 0 32 32" aria-hidden="true">
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>r</span>
+          <figcaption>22 px — al límite</figcaption>
+        </figure>
+        <figure>
+          <span class="logo xs">EternaFl<svg class="flor" viewBox="0 0 32 32" aria-hidden="true">
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>r</span>
+          <figcaption>15 px — se pierde</figcaption>
+        </figure>
+      </div>
+    </div>
+    <p class="nota">Esta es la razón por la que este logo <b>necesita un icono propio</b>: por debajo de ~20 px la flor deja de leerse. El icono sería la misma flor sola, en cuadrado redondeado, para la pestaña y la app.</p>
+  </section>
+
+  <section class="bloque">
+    <h2>El icono derivado</h2>
+    <div class="panel hondo">
+      <div class="fila">
+        <figure>
+          <svg width="64" height="64" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="7" fill="#3a2747"/>
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>
+          <figcaption>64 px</figcaption>
+        </figure>
+        <figure>
+          <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="7" fill="#3a2747"/>
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>
+          <figcaption>32 px</figcaption>
+        </figure>
+        <figure>
+          <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="7" fill="#3a2747"/>
+            <g fill="#ff8ab8"><circle cx="16" cy="7" r="6.4"/><circle cx="24.6" cy="13.2" r="6.4"/><circle cx="21.3" cy="23.3" r="6.4"/><circle cx="10.7" cy="23.3" r="6.4"/><circle cx="7.4" cy="13.2" r="6.4"/></g>
+            <circle cx="16" cy="16" r="3.6" fill="#3a2747"/>
+          </svg>
+          <figcaption>favicon 16 px</figcaption>
+        </figure>
+      </div>
+    </div>
+    <p class="nota">Regla: la flor de la "o" y la flor del icono son <b>el mismo trazado</b>. Nunca se dibujan por separado.</p>
+  </section>
+
+</div>
+</body>
+</html>

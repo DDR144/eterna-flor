@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 — Tablero por estado · Pedidos</title>
+<style>
+  :root{
+    --ink:#3a2747; --ink-muted:#6e5a7a; --surface:#ffffff;
+    --petal:#fbe4ee; --petal-deep:#ecc0d5;
+    --line:#dfbccf; --line-strong:#c99ab4;
+    --blossom:#ff8ab8; --blossom-deep:#f2659c;
+    --success:#1f7a52; --warning:#8a5a12; --danger:#a4262f;
+    --r-tight:12px; --r-soft:20px; --r-lush:32px;
+    --display:"Iowan Old Style",Georgia,"Palatino Linotype",serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--petal);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,p,ul,ol{margin:0;} ul,ol{padding:0;list-style:none;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+  .ribbon{background:var(--ink);color:#fff;padding:12px 28px;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;font-size:0.8125rem;}
+  .ribbon strong{font-size:0.875rem;} .ribbon span{color:#e6d3e0;} .ribbon em{font-style:normal;color:var(--blossom);}
+
+  .app{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 48px);}
+  .side{background:var(--surface);border-right:1px solid var(--line-strong);padding:18px 14px;display:flex;flex-direction:column;}
+  .brand{display:flex;align-items:center;gap:9px;font-family:var(--display);font-size:1.0625rem;font-weight:600;padding:4px 10px 18px;}
+  .brand .mark{width:26px;height:26px;border-radius:9px;background:var(--blossom);display:grid;place-items:center;font-family:var(--body);font-size:0.75rem;color:var(--ink);font-weight:700;}
+  .side h2{font-size:0.625rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-muted);padding:0 10px;margin:14px 0 6px;}
+  .side li a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:var(--r-tight);font-size:0.875rem;font-weight:500;color:var(--ink-muted);text-decoration:none;}
+  .side li a:hover{background:var(--petal);color:var(--ink);}
+  .side li a[aria-current="page"]{background:var(--ink);color:var(--surface);font-weight:600;}
+  .side li a .n{font-family:var(--mono);font-size:0.6875rem;background:var(--petal-deep);color:var(--ink);padding:1px 7px;border-radius:999px;}
+  .side li a[aria-current="page"] .n{background:var(--blossom);color:var(--ink);}
+  .side .foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);display:grid;gap:8px;font-size:0.8125rem;}
+  .side .foot a{color:var(--ink-muted);text-decoration:none;font-weight:500;}
+
+  .top{background:var(--surface);border-bottom:1px solid var(--line-strong);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;}
+  .top h1{font-family:var(--display);font-size:1.375rem;font-weight:600;letter-spacing:-0.02em;}
+  .top .who{display:flex;align-items:center;gap:10px;font-size:0.75rem;color:var(--ink-muted);}
+  .avatar{width:30px;height:30px;border-radius:999px;background:var(--blossom);color:var(--ink);display:grid;place-items:center;font-weight:700;font-size:0.75rem;}
+
+  .main{padding:20px 26px 28px;}
+  .bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .bar .count{font-size:0.8125rem;color:var(--ink-muted);}
+  .btn{font-family:inherit;font-size:0.8125rem;font-weight:600;white-space:nowrap;border-radius:var(--r-soft);padding:10px 18px;border:0;background:var(--blossom);color:var(--ink);cursor:pointer;}
+  .btn:hover{background:var(--blossom-deep);}
+
+  /* tablero */
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start;}
+  .col{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lush);box-shadow:0 2px 10px -4px rgba(58,39,71,0.10);padding:0 0 12px;overflow:hidden;}
+  .col > header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 16px;border-bottom:1px solid var(--line);background:#fffafc;}
+  .col > header h2{font-size:0.6875rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);display:flex;align-items:center;gap:7px;}
+  .dot{width:8px;height:8px;border-radius:999px;display:inline-block;}
+  .d-pend{background:var(--warning);} .d-prep{background:var(--ink);}
+  .d-entr{background:var(--success);} .d-pag{background:var(--blossom);}
+  .col > header .n{font-family:var(--mono);font-size:0.6875rem;font-weight:700;background:var(--petal-deep);color:var(--ink);padding:1px 8px;border-radius:999px;}
+
+  .card{margin:12px 12px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-soft);padding:13px 14px;display:grid;gap:9px;}
+  .card:hover{border-color:var(--line-strong);}
+  .card .client{font-weight:700;font-size:0.875rem;letter-spacing:-0.01em;}
+  .card .wa{font-family:var(--mono);font-size:0.6875rem;color:var(--ink-muted);margin-top:2px;}
+  .card .meta{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:0.75rem;color:var(--ink-muted);}
+  .card .total{font-family:var(--display);font-size:1.0625rem;font-weight:600;letter-spacing:-0.02em;color:var(--ink);}
+  .card .chips{display:flex;flex-wrap:wrap;gap:4px;}
+  .card .chip{font-size:0.6875rem;font-weight:600;background:var(--petal-deep);color:var(--ink);border-radius:7px;padding:2px 7px;white-space:nowrap;}
+  .card .chip.more{background:transparent;border:1px dashed var(--line-strong);color:var(--ink-muted);}
+  .card .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:9px;margin-top:1px;}
+  .card .acts a{flex:1;text-align:center;font-size:0.6875rem;font-weight:600;text-decoration:none;padding:5px 8px;border-radius:9px;background:var(--petal);color:var(--ink);}
+  .card .acts a:hover{background:var(--petal-deep);}
+  .card .acts a.del{flex:0 0 auto;padding:5px 10px;color:var(--danger);background:transparent;}
+  .empty{margin:12px;border:1px dashed var(--line-strong);border-radius:var(--r-soft);padding:18px 12px;text-align:center;font-size:0.75rem;color:var(--ink-muted);}
+
+  .foot-note{margin-top:14px;font-size:0.75rem;color:var(--ink-muted);}
+
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <strong>03 · Tablero por estado</strong>
+  <span><em>Estrategia:</em> cuatro columnas — Pendiente, En preparación, Entregado, Pagado — donde el estado es la posición, no una etiqueta.</span>
+  <span><em>Tradeoff:</em> responde "qué me falta hoy" de un vistazo y llena el ancho por sí solo; exige pantalla ancha, no ordena por fecha y crece hacia abajo si un estado se llena.</span>
+</div>
+
+<div class="app">
+  <nav class="side" aria-label="Navegación del panel">
+    <p class="brand"><span class="mark" aria-hidden="true">E</span> EternaFlor</p>
+    <h2>Catálogo</h2>
+    <ul>
+      <li><a href="#ramos">Ramos <span class="n">5</span></a></li>
+      <li><a href="#materias">Materias primas <span class="n">4</span></a></li>
+    </ul>
+    <h2>Operación</h2>
+    <ul>
+      <li><a href="#pedidos" aria-current="page">Pedidos <span class="n">4</span></a></li>
+      <li><a href="#reportes">Reportes</a></li>
+    </ul>
+    <div class="foot"><a href="#catalogo">Ver catálogo ↗</a><a href="#salir">Cerrar sesión</a></div>
+  </nav>
+
+  <div>
+    <header class="top">
+      <h1>Pedidos</h1>
+      <p class="who">admin@eternaflor.local <span class="avatar" aria-hidden="true">A</span></p>
+    </header>
+
+    <main class="main">
+      <div class="bar">
+        <p class="count">12 pedidos · 3 pendientes y 3 en preparación</p>
+        <button class="btn" type="button">+ Nuevo Pedido</button>
+      </div>
+
+      <div class="board">
+        <section class="col" aria-labelledby="c-pend">
+          <header><h2 id="c-pend"><span class="dot d-pend" aria-hidden="true"></span>Pendiente</h2><span class="n">3</span></header>
+          <article class="card">
+            <div><p class="client">María Quispe</p><p class="wa">+51 987 654 321</p></div>
+            <div class="chips"><span class="chip">Aurora ×1</span><span class="chip">Susurro ×1</span></div>
+            <p class="meta"><span>Entrega 12 feb.</span><span class="total">S/ 140.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Ana Torres</p><p class="wa">+51 903 442 118</p></div>
+            <div class="chips"><span class="chip">Aurora ×1</span></div>
+            <p class="meta"><span>Entrega 15 feb.</span><span class="total">S/ 185.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Patricia Vega</p><p class="wa">+51 973 220 887</p></div>
+            <div class="chips"><span class="chip">Campo Dorado ×1</span></div>
+            <p class="meta"><span>Entrega 17 feb.</span><span class="total">S/ 260.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+        </section>
+
+        <section class="col" aria-labelledby="c-prep">
+          <header><h2 id="c-prep"><span class="dot d-prep" aria-hidden="true"></span>En preparación</h2><span class="n">3</span></header>
+          <article class="card">
+            <div><p class="client">Lucía Ramírez</p><p class="wa">+51 912 334 887</p></div>
+            <div class="chips"><span class="chip">Jardín Secreto ×1</span></div>
+            <p class="meta"><span>Entrega 13 feb.</span><span class="total">S/ 95.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Miguel Chávez</p><p class="wa">+51 977 883 019</p></div>
+            <div class="chips"><span class="chip">Campo Dorado ×1</span><span class="chip">Aurora ×1</span><span class="chip more">+1</span></div>
+            <p class="meta"><span>Entrega 14 feb.</span><span class="total">S/ 345.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Jorge Salazar</p><p class="wa">+51 988 330 661</p></div>
+            <div class="chips"><span class="chip">Jardín Secreto ×2</span></div>
+            <p class="meta"><span>Entrega 15 feb.</span><span class="total">S/ 230.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+        </section>
+
+        <section class="col" aria-labelledby="c-entr">
+          <header><h2 id="c-entr"><span class="dot d-entr" aria-hidden="true"></span>Entregado</h2><span class="n">3</span></header>
+          <article class="card">
+            <div><p class="client">Luis Paredes</p><p class="wa">+51 966 201 774</p></div>
+            <div class="chips"><span class="chip">Medianoche ×1</span><span class="chip">Susurro ×1</span></div>
+            <p class="meta"><span>Entrega 13 feb.</span><span class="total">S/ 205.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Rosa Huamán</p><p class="wa">+51 955 120 044</p></div>
+            <div class="chips"><span class="chip">Campo Dorado ×1</span><span class="chip">Medianoche ×1</span><span class="chip more">+1</span></div>
+            <p class="meta"><span>Entrega 14 feb.</span><span class="total">S/ 320.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Elena Vargas</p><p class="wa">+51 959 018 342</p></div>
+            <div class="chips"><span class="chip">Susurro ×1</span><span class="chip">Jardín Secreto ×1</span></div>
+            <p class="meta"><span>Entrega 16 feb.</span><span class="total">S/ 168.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+        </section>
+
+        <section class="col" aria-labelledby="c-pag">
+          <header><h2 id="c-pag"><span class="dot d-pag" aria-hidden="true"></span>Pagado</h2><span class="n">3</span></header>
+          <article class="card">
+            <div><p class="client">Carlos Mendoza</p><p class="wa">+51 934 887 210</p></div>
+            <div class="chips"><span class="chip">Aurora ×1</span></div>
+            <p class="meta"><span>Entrega 12 feb.</span><span class="total">S/ 140.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Sofía Delgado</p><p class="wa">+51 941 556 230</p></div>
+            <div class="chips"><span class="chip">Medianoche ×1</span></div>
+            <p class="meta"><span>Entrega 14 feb.</span><span class="total">S/ 110.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+          <article class="card">
+            <div><p class="client">Carmen Rojas</p><p class="wa">+51 921 774 005</p></div>
+            <div class="chips"><span class="chip">Peonía Blanca ×1</span></div>
+            <p class="meta"><span>Entrega 16 feb.</span><span class="total">S/ 72.00</span></p>
+            <div class="acts"><a href="#ver">Abrir</a><a href="#eliminar" class="del">Eliminar</a></div>
+          </article>
+        </section>
+      </div>
+
+      <p class="foot-note">Arrastrar una ficha a otra columna cambia su estado. En pantallas angostas las columnas se apilan y el tablero se lee como una lista por estado.</p>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

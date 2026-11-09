@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "chosen": "02-flor-en-el-nombre.html",
+  "handoffs": {
+    "02-flor-en-el-nombre.html": {
+      "status": "implemented",
+      "queued": false,
+      "sentAt": "2026-11-09T03:39:05.218Z",
+      "startedAt": "2026-11-09T03:39:37.172Z",
+      "implementedAt": "2026-11-09T03:40:37.921Z",
+      "note": "Logotipo implementado: la flor ocupa la \"o\" final, con la flor suelta como icono derivado para la barra colapsada y el favicon. Aplicado en el panel, el login y el catálogo público.",
+      "previewUrl": "http://127.0.0.1:3000/login"
+    }
+  }
+}
