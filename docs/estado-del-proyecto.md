@@ -1,6 +1,6 @@
 # Estado del proyecto y traspaso
 
-**Última actualización:** 2026-11-06 · rama `main` · commit `2de60f1`
+**Última actualización:** 2026-11-09 · lo desplegado es `main` en `70ebf58`. Este mismo documento se actualizó en la rama `docs/refresh-documentation`, aún no fusionada.
 
 Este documento existe para que una sesión nueva pueda continuar sin reconstruir el contexto. Si algo de aquí no coincide con el repositorio, **manda el repositorio**: `git log --oneline -10 main`.
 
@@ -21,8 +21,8 @@ Este documento existe para que una sesión nueva pueda continuar sin reconstruir
 ## 2. Límites de los planes gratuitos y las decisiones que imponen
 
 - **El frontend no va en Render.** Render Free da 750 horas de servicio al mes por workspace y un mes tiene 744. Dos servicios encendidos serían 1488 horas y ambos se suspenderían a mitad de mes.
-- **`/health` no consulta la base de datos, a propósito.** El backend se mantiene despierto con un ping externo cada 5 minutos. Si ese ping tocara la base, Neon quedaría activo 24/7 (~186 CU-horas frente a las 100 del plan) y la base dejaría de responder a mitad de mes. Está comentado en el código: no "mejorar" añadiendo una comprobación de base.
-- **El servicio duerme a los 15 minutos sin tráfico.** La primera visita después tarda cerca de un minuto. Se compensa con un monitor externo; todavía **no** está configurado.
+- **`/health` no consulta la base de datos, a propósito.** Si esa sonda tocara Neon, la base quedaría activa 24/7 (~186 CU-horas frente a las 100 del plan) y dejaría de responder a mitad de mes. Está comentado en el código: no "mejorar" añadiendo una comprobación de base.
+- **El servicio duerme a los 15 minutos sin tráfico.** La primera visita después tarda cerca de un minuto. El ping de keep-alive tiene que ser **más frecuente que esos 15 minutos**; por eso se habla de 10 minutos, no de 15. Ese monitor **todavía no está configurado** (ver pendientes).
 
 ## 3. Variables de entorno
 
@@ -35,14 +35,17 @@ Viven en el panel de Render, nunca en el repositorio. El contrato completo está
 | `JWT_SECRET` | firma de tokens | obligatorio: el backend no arranca sin él |
 | `FRONTEND_URL` | CORS | debe ser el origen exacto, **sin barra final** |
 | `CLOUDINARY_*` | subida de fotos | sin ellas el backend arranca, pero subir foto da 500 |
-| `NODE_ENV` | `production` | — |
+| `NODE_ENV` | `production` | también activa la cookie `secure` |
 | `PORT` | **no definir** | Render la inyecta; fijarla a mano rompe el health check |
+
+En Vercel, el frontend usa `NEXT_PUBLIC_API_URL`; si falta, cae a `http://localhost:3001`.
 
 ## 4. Operación
 
-- **Desplegar:** `git push origin main`. Render y Vercel redespliegan solos. Verificado en vivo dos veces.
+- **Desplegar:** `git push origin main`. Render y Vercel redespliegan solos. Verificado en vivo varias veces.
 - **Aplicar una migración a producción:** una sola vez, desde local, con las variables en línea para no dejar credenciales en el `.env`:
   `DIRECT_URL="<directa>" DATABASE_URL="<pooled>" pnpm exec prisma migrate deploy`
+  Las migraciones **no** corren en el arranque: `start:prod` es `node dist/main`.
 - **Comprobar que un despliegue llegó:** `/health` devuelve `uptime`, que crece de forma monótona. Un salto hacia atrás es un proceso nuevo. Si el build falla, Render sigue sirviendo el anterior sin reiniciar.
 - **Cambiar variables en Render:** "Save only" **no las aplica**. Hace falta "Save, rebuild, and deploy"; un reinicio reutiliza la configuración del despliegue anterior.
 - **Revertir:** volver a desplegar el commit anterior desde Render. Todas las unidades publicadas hasta ahora son reversibles: ninguna toca el esquema.
@@ -61,32 +64,32 @@ Viven en el panel de Render, nunca en el repositorio. El contrato completo está
 | `9b8867f` | Seed de datos locales (`pnpm run seed`) y guard de base movido a `src/common/local-database.ts` |
 | `06d6d69` | La API acepta la etiqueta de estado que guarda la base (`En preparación`), con `src/common/enum-label.ts` |
 | `57063de` | La web pinta las etiquetas acentuadas: `lib/tamanos.ts` en el catálogo y el admin de ramos |
+| `97d8ec0` | El e2e deja de borrar ramos hechos a mano (prefijo `[e2e] Ramo `) |
+| `2de60f1` | `.gitignore` cubre el tooling local de agentes (`.agents/`, `.claude/`, `skills-lock.json`) |
+| `58084b5` … `70ebf58` | Rediseño visual completo: tokens unificados con `DESIGN.md`, capa `components/ui/`, las seis pantallas migradas, wordmark EternaFlor y su icono, pedidos agrupados por fecha de entrega, jerarquía de superficies, catálogo que sobrevive a una API caída |
+| `0a4d42a` | La documentación describe la arquitectura real: `README.md` raíz, `AGENTS.md` corregido y `docs/architecture.md` en lugar de los 15 archivos con MySQL en Railway |
 
 Verificado en producción el 2026-11-05: `GET /catalogo?tamano=Pequeño` y `?tamano=Pequeno` devuelven ambos el ramo, y el texto visible junto a la tarjeta dice **Pequeño**. La API sigue devolviendo el nombre de miembro (`Pequeno`) en el JSON; la traducción a etiqueta ocurre en el frontend, a propósito.
-
-Además, de otras sesiones: **seed de datos locales** (`pnpm run seed`, usuario `admin@eternaflor.local` / `local1234`) y **Cloudinary configurado y verificado**.
 
 ## 6. Pendientes reales
 
 | Pendiente | Depende de |
 |---|---|
+| Monitor externo de keep-alive (cada ~10 min a `/health`) | Usuario. Sin él el servicio duerme y la primera visita tarda cerca de un minuto |
 | Limpiar el ramo de prueba `ramo one` (id 1) de la base de producción: aparece en el catálogo público | Usuario |
-| Monitor externo (UptimeRobot, cada 5 min a `/health`) | Usuario, 5 minutos |
-| `.agents/`, `.claude/` y `skills-lock.json` están sin trackear en la raíz y ensucian el estado del repo | Cualquiera. Dos líneas en `.gitignore` |
-| Alinear la documentación vieja: `AGENTS.md` y `docs/architecture/*` describen una infraestructura que no existe | Nadie |
+| `feat/front-tests` (Vitest + 18 tests sobre `lib/`) sigue **solo en local**, sin fusionar: el frontend no tiene runner en `main` | Decisión del usuario |
 | Paginación | **Recomendación: no hacerla.** Una sola usuaria, pocos datos, y cambiaría el contrato de una API en vivo |
 
-**Aparcado por decisión (2026-11-06):** `feat/ui-design-system` — 5 commits, +1035/−363 en 13 archivos, **existe solo en local, no está en `origin`**. No se fusiona y no se borra: queda como referencia congelada. El trabajo de frontend sigue desde `main` sin esperar a esa rama, y si algún día se retoma, se revisa entonces. Nota: el repo arrastra además cuatro ramas locales ya contenidas en `main` (`feat/api-hardening`, `feat/api-validation`, `feat/api-validation-entangled`, `feat/production-readiness`); no se tocaron.
-
-Resuelto desde la primera versión de este documento: los valores de enum ya se muestran con acento (`57063de`), `GET /pedidos?estado=En preparación` ya se acepta (`06d6d69`), Cloudinary está configurado, y el prefijo de limpieza del e2e pasó de `'Ramo '` a `'[e2e] Ramo '`, así que ya no borra ramos hechos a mano.
+**Ramas locales:** `main` es producción y `feat/ui-refresh` apunta al mismo commit, así que ya está contenida. `feat/ui-design-system` fue el intento original del rediseño; su trabajo se recogió en `feat/ui-refresh` y está en `main`, pero la rama se conserva como referencia congelada. Las ramas `feat/api-hardening`, `feat/api-validation`, `feat/api-validation-entangled` y `feat/production-readiness` ya están contenidas en `main` y no se tocaron. `feat/front-tests` es la única con trabajo sin fusionar.
 
 ## 7. Trampas conocidas
 
-- **Enums con acento.** En `schema.prisma` el miembro es `Pequeno` y la etiqueta de la base es `Pequeño` (`@map`). Prisma acepta y devuelve **el nombre del miembro**. El frontend envía la etiqueta. Esto ya causó dos bugs (crear un ramo de tamaño Pequeño daba 500, y el filtro del catálogo se ignoraba) y sigue afectando a lo que se **muestra**. Misma trampa en `EstadoPedido` con `En preparación` / `EnPreparacion`.
+- **Enums con acento.** En `schema.prisma` el miembro es `Pequeno` y la etiqueta de la base es `Pequeño` (`@map`). Prisma acepta y devuelve **el nombre del miembro**. El frontend envía la etiqueta. Esto ya causó tres bugs (crear un ramo de tamaño Pequeño daba 500, el filtro del catálogo se ignoraba, y la etiqueta del filtro por estado no coincidía) y sigue afectando a lo que se **muestra**. Misma trampa en `EstadoPedido` con `En preparación` / `EnPreparacion`.
 - **pnpm 12 y los build scripts.** `onlyBuiltDependencies` está silenciosamente muerto: se ignora sin error ni aviso. El ajuste que funciona es el mapa `allowBuilds` en `pnpm-workspace.yaml`. Sin él, `pnpm install` sale con código 1 y Render marca el deploy como fallido.
 - **El `.env` local enmascara variables faltantes.** El cliente de Prisma carga el `.env` del proyecto al importarse, así que un proceso arrancado en otro directorio igual encuentra las variables. En producción no hay `.env`, por eso `getOrThrow` sí aborta allí.
-- **Los tests e2e solo pueden tocar bases locales**, por `src/common/local-database.ts`. No es un estorbo: la base de producción es remota y una limpieza descuidada la borraría.
+- **Los tests e2e y el seed solo pueden tocar bases locales**, por `src/common/local-database.ts`. No es un estorbo: la base de producción es remota y una limpieza descuidada la borraría.
 - **`prisma` es devDependency.** Si una plataforma instalara sin dependencias de desarrollo, `prisma generate` fallaría. Render las instala durante el build.
+- **El token vive en `localStorage`, no en la cookie.** `lib/api.ts` lo guarda y lo envía como `Bearer`; la cookie `secure` que pone el backend es un extra. Una migración a un esquema solo-cookie tiene que cambiar los dos lados a la vez.
 
 ## 8. Coordinación entre sesiones
 

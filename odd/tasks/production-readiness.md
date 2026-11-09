@@ -161,3 +161,15 @@ Hallazgos y decisiones:
 - Las cadenas de Neon incluyen `sslmode=require&channel_binding=require`, y el pooler responde tanto a `psql` como a Prisma.
 - El CLI `neon@8.3.5` (paquete oficial de `neondatabase/neon-pkgs`) se ejecutó con `pnpm dlx`, **sin instalación global**: cero residuo en el sistema. La credencial quedó en `~/.config/neon/credentials.json` (modo 600).
 - Se descartaron los pasos `neon skills`, `neon mcp`, `neon config init`, `neon.ts` y `neon deploy`: pertenecen a Config-as-Code de recursos de Neon, no al despliegue de la aplicación, que vive en Render y Vercel.
+
+## Fase 6 — Alineación documental (completada 2026-11-09)
+
+Las desviaciones de la sección anterior están cerradas. El trabajo se registró aparte, en `odd/tasks/documentation-refresh.md`, porque la auditoría encontró bastante más que esas cuatro líneas (40+ afirmaciones falsas). Resultado:
+
+- `README.md` raíz creado; `AGENTS.md` reescrito con rutas, scripts y base de datos reales.
+- `docs/architecture/` (15 archivos + 6 ADRs con MySQL y Railway) sustituido por un único `docs/architecture.md`, con sección de decisiones retiradas.
+- Los dos `README.md` de paquete dejan de ser boilerplate del generador.
+- `docs/estado-del-proyecto.md` sin pendientes ya resueltos; `DESIGN.md` alineado con `design/system.md` y con `app/globals.css`.
+- Corrección a esta propia lista: `PRD_EternaFlor.md` **no** menciona MySQL ni ningún stack; la afirmación de esa lista era inexacta.
+
+Evidencia: commit `0a4d42a` más el resto de la rama `docs/refresh-documentation`.

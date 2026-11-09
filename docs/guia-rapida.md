@@ -13,7 +13,8 @@ EternaFlor es un sistema de gestión para tu negocio de ramos florales. Te permi
 ## Primeros Pasos
 
 ### 1. Acceso al Sistema
-- Abre tu navegador y accede a: `https://tu-dominio.com/login`
+- Abre tu navegador y accede a: `https://eterna-flor.vercel.app/login`
+- La primera visita del día puede tardar cerca de un minuto: el servidor se suspende cuando nadie lo usa y necesita despertar.
 - Ingresa tu correo electrónico y contraseña
 
 ### 2. Crear Materias Primas
@@ -76,7 +77,7 @@ Antes de crear ramos, necesitas registrar tus materiales:
 ## Catálogo Público
 
 ### Acceso
-- Tu catálogo público está en: `https://tu-dominio.com/catalogo`
+- Tu catálogo público está en: `https://eterna-flor.vercel.app/catalogo`
 - Comparte este enlace con tus clientes por WhatsApp
 
 ### Filtros
@@ -116,7 +117,7 @@ Antes de crear ramos, necesitas registrar tus materiales:
 ### Hacer Backup
 1. Ve a **Reportes**
 2. Click en **Exportar CSV**
-3. Se descargará un archivo con todos tus datos:
+3. Se descargará un archivo `.csv` con tres secciones:
    - Ramos (nombre, precio, costo, stock)
    - Materias Primas (nombre, stock, costo)
    - Pedidos (cliente, estado, monto, items)
@@ -143,5 +144,5 @@ Antes de crear ramos, necesitas registrar tus materiales:
 ## ¿Necesitas Ayuda?
 Si tienes dudas o problemas, contacta al soporte técnico.
 
-**Fecha de creación**: Mayo 2026
-**Versión**: 1.0
+**Última revisión**: Noviembre 2026
+**Versión**: 1.1

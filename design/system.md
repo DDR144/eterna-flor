@@ -1,6 +1,6 @@
 # EternaFlor — Design system (Pastel Candy)
 
-Synchronized from the implementation in `feat/ui-refresh`. This file records **only values that exist in the sources** after the migration unified the two previous visual systems.
+Synchronized from the implementation on `main` (the `feat/ui-refresh` work, merged). This file records **only values that exist in the sources** after the migration unified the two previous visual systems.
 
 Sources read:
 
@@ -21,10 +21,10 @@ Source: `eterna-flor-front/app/globals.css` (`@theme`).
 | `--color-ink` | `#3a2747` | Headlines, core text, primary button text, focus outlines (`focus-visible:outline-ink`) |
 | `--color-ink-muted` | `#6e5a7a` | Secondary text, muted captions, ghost buttons, badges (`tone="neutral"`) — 5.7:1 on `surface` |
 | `--color-surface` | `#ffffff` | Card, popover and input surfaces |
-| `--color-petal` | `#fff3f7` | Page background (`body`), hover fills for secondary/ghost buttons |
-| `--color-petal-deep` | `#fbe4ee` | Deeper hover surface (reserved) |
-| `--color-line` | `#ecd9e6` | Default borders (`border-color`, card borders) |
-| `--color-line-strong` | `#dcc4d6` | Input/control borders, secondary button borders |
+| `--color-petal` | `#fbe4ee` | Page background (`body`), hover fills for secondary/ghost buttons |
+| `--color-petal-deep` | `#ecc0d5` | Deeper surface: `Badge` `tone="neutral"` background |
+| `--color-line` | `#dfbccf` | Default borders (`border-color`, card borders) |
+| `--color-line-strong` | `#c99ab4` | Input/control borders, secondary button borders |
 | `--color-lilac` | `#9e82b5` | Borders and decorative fills only — **FORBIDDEN as text** (2.7:1 on `petal`, below WCAG AA 4.5:1) |
 | `--color-blossom` | `#ff8ab8` | Primary actions, accent badges — the sole interactive accent |
 | `--color-blossom-deep` | `#f2659c` | Hover state for primary buttons and blossom surfaces |
@@ -96,7 +96,7 @@ Source: `eterna-flor-front/components/ui/*.tsx`.
 | `CardHeader` | `title`, `description?`, `action?` | Flex row with bottom border `line`; title in `font-display text-base font-semibold text-ink`; description in `text-sm text-ink-muted`. |
 | `CardBody` | `children`, `className?` | `px-6 py-4`. |
 | `CardFooter` | `children` | Flex row with top border `line`, right-aligned gap-2; `px-6 py-4`. |
-| `Badge` | `tone`: `neutral` (default), `accent`, `success`, `warning`, `danger` | `inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold`. Tones: `neutral` → `border-line bg-petal text-ink-muted`; `accent` → `border-transparent bg-blossom text-ink`; `success` → `border-transparent bg-success/10 text-success`; `warning` → `border-transparent bg-warning/10 text-warning`; `danger` → `border-transparent bg-danger/10 text-danger`. |
+| `Badge` | `tone`: `neutral` (default), `accent`, `success`, `warning`, `danger` | `inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold`. Tones: `neutral` → `border-line-strong bg-petal-deep text-ink`; `accent` → `border-transparent bg-blossom text-ink`; `success` → `border-transparent bg-success/10 text-success`; `warning` → `border-transparent bg-warning/10 text-warning`; `danger` → `border-transparent bg-danger/10 text-danger`. |
 | `Field` | `label`, `name`, `children` (control), `hint?`, `error?`, `required?` | Wraps label + control + message. Generates matching `htmlFor`/`id` via `useId`. Injects `name`, `required`, `aria-invalid`, `aria-describedby` into the child control. Error announced with `role="alert"`. |
 | `Input` | standard `<input>` props | `w-full rounded-tight border border-line-strong bg-surface px-3 py-2.5 text-sm text-ink transition-colors duration-150 placeholder:text-ink-muted/60 focus-visible:border-blossom focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-blossom aria-invalid:border-danger aria-invalid:focus-visible:outline-danger`. |
 | `Select` | standard `<select>` props | Same styling as `Input`. |
