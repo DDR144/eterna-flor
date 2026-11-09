@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# eterna-flor-front
 
-## Getting Started
+Frontend de EternaFlor: Next.js 16 (App Router) + React 19 + Tailwind CSS 4. Sirve el catálogo público y el panel de administración.
 
-First, run the development server:
+La documentación del proyecto completo está en el [README raíz](../README.md); los tokens visuales implementados, en [`design/system.md`](../design/system.md).
+
+## Requisitos
+
+- Node 24 (`.node-version`)
+- pnpm 12
+- La API corriendo (por defecto en `http://localhost:3001`)
+
+## Instalación y arranque
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El cliente HTTP (`lib/api.ts`) usa `NEXT_PUBLIC_API_URL`; si no está definida, cae a `http://localhost:3001`. En producción se configura en Vercel.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev     # next dev, puerto 3000
+pnpm build   # next build
+pnpm start   # next start sobre el build
+pnpm lint    # eslint
+```
 
-## Learn More
+No hay script `format` ni runner de tests en este paquete.
 
-To learn more about Next.js, take a look at the following resources:
+## Estructura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+  layout.tsx              fuentes (Fraunces + Nunito) y estilos raíz
+  globals.css             tokens @theme, clases heredadas y guard de reduce-motion
+  page.tsx                redirección según haya sesión
+  login/                  acceso de la administradora
+  catalogo/               catálogo público, renderizado en el servidor
+  admin/                  panel
+    layout.tsx            shell: navegación lateral
+    ramos/                ramos con receta, costo y stock
+    materias-primas/      insumos y alertas
+    pedidos/              pedidos agrupados por fecha de entrega
+    reportes/             ventas, márgenes y exportación CSV
+components/ui/            Button, Card, Badge, Field, EmptyState, Spinner, Icon
+lib/
+  api.ts                  cliente HTTP y token
+  auth-context.tsx        estado de sesión
+  format.ts               money, percent, shortDate (es-PE)
+  tamanos.ts              etiqueta con acento del catálogo → miembro del enum
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Convenciones
 
-## Deploy on Vercel
+- **Lee `node_modules/next/dist/docs/` antes de escribir código.** Next.js 16 cambia APIs respecto a versiones anteriores y a los datos de entrenamiento; respeta los avisos de deprecación.
+- Tailwind CSS 4 vía `@tailwindcss/postcss`; **no hay `tailwind.config.js`**. Los tokens son el bloque `@theme` de `app/globals.css`.
+- No escribas hex en JSX: usa los tokens (`bg-ink`, `text-ink-muted`, `bg-blossom`, `border-line`, …) y los radios `rounded-tight/soft/lush`.
+- Reutiliza `components/ui/` en lugar de inventar marcado nuevo para el mismo elemento.
+- La paleta, las reglas de contraste y las variantes de cada componente están documentadas en `design/system.md`; `DESIGN.md` es la intención declarada del sistema "Pastel Candy".
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Despliegue
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel, plan Hobby, auto-deploy desde `main`. El commit desplegado y el procedimiento completo están en [`docs/estado-del-proyecto.md`](../docs/estado-del-proyecto.md).
