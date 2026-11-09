@@ -1,4 +1,4 @@
-import { Badge, Card, EmptyState } from '@/components/ui';
+import { Badge, Card, EmptyState, Logo } from '@/components/ui';
 import { API_URL } from '@/lib/api';
 import { money } from '@/lib/format';
 import { TAMANOS, labelTamano } from '@/lib/tamanos';
@@ -94,6 +94,9 @@ export default async function CatalogoPage({
   return (
     <div className="min-h-screen bg-petal font-body text-ink">
       <header className="px-6 pt-14 pb-10 text-center sm:px-12">
+        <p className="mb-7 flex justify-center text-ink">
+          <Logo tamaño="1.75rem" />
+        </p>
         <p className="inline-block rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-semibold tracking-[0.14em] text-ink-muted uppercase">
           Ramos artificiales · Hechos a mano
         </p>

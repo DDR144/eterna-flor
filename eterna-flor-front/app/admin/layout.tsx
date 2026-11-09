@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { Button, Icon, Spinner } from '@/components/ui';
+import { Button, Icon, IconoMarca, Logo, Spinner } from '@/components/ui';
 import type { IconName } from '@/components/ui';
 
 interface NavItem {
@@ -71,27 +71,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </a>
 
       <aside
-        className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r border-line bg-surface transition-[width] duration-200 ${
+        className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r border-line-strong bg-surface transition-[width] duration-200 ${
           sidebarOpen ? 'w-64' : 'w-20'
         }`}
       >
-        <div className="flex h-16 items-center justify-between gap-2 border-b border-line px-4">
+        <div
+          className={`flex h-16 items-center border-b border-line ${
+            sidebarOpen
+              ? 'justify-between gap-2 px-4'
+              : 'justify-center gap-1 px-2'
+          }`}
+        >
           {sidebarOpen ? (
-            <Link href="/admin" className="flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className="h-2.5 w-2.5 rounded-full bg-blossom"
-              />
-              <span className="font-display text-lg font-semibold text-ink">
-                EternaFlor
-              </span>
+            <Link
+              href="/admin"
+              aria-label="EternaFlor, ir al panel"
+              className="flex items-center text-ink"
+            >
+              <Logo tamaño="1.125rem" />
             </Link>
           ) : (
-            <Link href="/admin" aria-label="EternaFlor, ir al panel">
-              <span
-                aria-hidden="true"
-                className="block h-2.5 w-2.5 rounded-full bg-blossom"
-              />
+            <Link
+              href="/admin"
+              aria-label="EternaFlor, ir al panel"
+              className="shrink-0"
+            >
+              <IconoMarca className="h-7 w-7" />
             </Link>
           )}
           <button
@@ -100,7 +105,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             aria-label={sidebarOpen ? 'Contraer menú' : 'Expandir menú'}
             aria-expanded={sidebarOpen}
             aria-controls="menu-lateral"
-            className="rounded-tight p-1.5 text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className={`shrink-0 rounded-tight text-ink-muted transition-colors duration-150 hover:bg-petal hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+              sidebarOpen ? 'p-1.5' : 'p-1'
+            }`}
           >
             <Icon
               name={sidebarOpen ? 'izquierda' : 'derecha'}
@@ -121,7 +128,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 aria-current={isActive ? 'page' : undefined}
                 className={`flex items-center gap-3 rounded-tight px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
                   isActive
-                    ? 'bg-petal font-semibold text-ink'
+                    ? 'bg-ink font-semibold text-surface'
                     : 'font-medium text-ink-muted hover:bg-petal hover:text-ink'
                 }`}
               >
@@ -162,7 +169,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           sidebarOpen ? 'ml-64' : 'ml-20'
         }`}
       >
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-surface px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line-strong bg-surface px-6">
           <h1 className="font-display text-xl font-semibold text-ink">
             {active?.label ?? 'Panel'}
           </h1>

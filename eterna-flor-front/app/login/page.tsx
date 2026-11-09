@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { Button, Card, CardBody, CardHeader, Field, Input, Spinner } from '@/components/ui';
+import { Button, Card, CardBody, CardHeader, Field, Input, Logo, Spinner } from '@/components/ui';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -32,8 +32,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       <div className="relative hidden overflow-hidden bg-ink lg:flex lg:w-1/2">
         <div className="relative z-10 flex w-full flex-col items-center justify-center p-12 text-surface">
-          <h2 className="mb-4 text-center font-display text-4xl font-semibold">
-            EternaFlor
+          <h2 className="mb-4 text-center text-surface">
+            <Logo tamaño="2.25rem" />
           </h2>
           <p className="max-w-md text-center text-lg text-surface/80">
             Sistema de gestión integral para tu negocio de ramos florales
@@ -49,12 +49,8 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center bg-petal p-8">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center lg:hidden">
-            <span
-              aria-hidden="true"
-              className="mx-auto mb-2 block h-2.5 w-2.5 rounded-full bg-blossom"
-            />
-            <h1 className="font-display text-2xl font-semibold text-ink">
-              EternaFlor
+            <h1 className="mb-1 flex justify-center text-ink">
+              <Logo tamaño="1.5rem" />
             </h1>
             <p className="mt-1 text-sm text-ink-muted">Gestión de Ramos Florales</p>
           </div>
