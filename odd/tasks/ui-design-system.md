@@ -182,3 +182,25 @@ Frontera de slice: hasta `4eb3dff` inclusive. Cualquier trabajo posterior de fro
 **Defecto preexistente encontrado y corregido en verificación:** `getRamos` capturaba `!res.ok` pero no una excepción de red, así que con la API caída el catálogo público devolvía 500 en lugar de su estado vacío. Detectado al levantar el dev server (`ECONNREFUSED` contra el backend NestJS). Corregido en `a2a9253`; es independiente de la migración visual y habría roto cualquier comparación contra el artboard.
 
 **Estado del entorno de verificación:** dev server en `http://127.0.0.1:3000` sirviendo `/catalogo` y `/login` en 200 con los tokens nuevos. El backend no está levantado, así que el catálogo muestra su estado vacío y las pantallas del admin no tienen datos; la comparación visual es de estructura y tipografía, no de contenido.
+
+## Fase 3 — correcciones sobre la marcha (2026-11-06)
+
+El trabajo no terminó al implementar el artboard: la revisión visual del usuario destapó tres defectos que la verificación automática no podía ver, y aparecieron dos piezas de marca que faltaban.
+
+**Lo que estaba mal y se corrigió:**
+
+1. **Sin jerarquía de superficies.** Página, barra lateral y tarjetas estaban a menos del 8 % de diferencia de luminosidad: tarjeta sobre fondo 1.08:1, bordes 1.34:1, ítem activo del menú 1.08:1 — invisible. Los bordes necesitan 3:1 para percibirse. Corregido en `globals.css` (petal `#fbe4ee`, petal-deep `#ecc0d5`, line `#dfbccf`, line-strong `#c99ab4`), más el ítem activo en `ink` sobre `surface` (13.45:1). **Causa de fondo:** la capa `components/ui` había quitado la sombra suave que el artboard aprobado sí tenía, y dejó solo un borde de 1.34:1.
+2. **Badges ilegibles.** El neutral usaba `bg-petal` con `text-ink-muted` y los de estado un relleno al 10 % sin borde. Ahora todos llevan borde y relleno con presencia.
+3. **Botón partido en dos líneas.** `Button` no tenía control de salto; "Nuevo Pedido" se partía. `whitespace-nowrap` en el componente, no en la pantalla.
+4. **Botón de la barra colapsada fuera del borde.** Cabecera de 100 px en una barra de 80 px. Ahora `px-2 gap-1` con icono de 28 px: 72 px, 8 px de margen.
+
+**Lo que faltaba y se añadió:**
+
+5. **Agenda de pedidos** (`design/pedidos/04-agenda-entrega.html`): el listado se agrupa por fecha de entrega con banda de hoy, días pasados marcados, banda "Sin fecha" y resumen de cifras.
+6. **Logotipo** (`design/logo/02-flor-en-el-nombre.html`): la "o" final de EternaFlor es la flor. Un solo arreglo de pétalos alimenta el logotipo, el icono de la app y el favicon. La flor se mide en `ex` para alinearse con las minúsculas de cualquier tipografía.
+7. **Favicon propio**: el de Vercel se reemplazó por la flor. `favicon.ico` (16/32/48), `icon.png` (512), `apple-icon.png` (180).
+8. **Marca en el catálogo público**: era el único lugar donde la cara pública del negocio no mostraba identidad.
+
+**Verificación de la fase 3:** `tsc=0`; `build=0` con 11 rutas generadas, incluidas `/icon.png` y `/apple-icon.png`; `lint` con 18 problemas, **todos preexistentes** (14 `no-explicit-any`, 3 `no-img-element`, 1 `react-hooks/immutability`). La comprobación visual la hizo el usuario en el navegador con datos sembrados.
+
+**Deuda reconocida:** la rama no tiene runner de tests (el trabajo de Vitest vive en `feat/front-tests`); la revisión nativa no llegó a completarse para el conjunto por límite del relay; y el commit de `API_URL` quedó sin revisar por rechazo explícito del candidato.
