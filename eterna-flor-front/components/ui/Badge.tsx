@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
 const tones = {
-  neutral: "border-line bg-petal text-ink-muted",
+  neutral: "border-line-strong bg-petal-deep text-ink",
   accent: "border-transparent bg-blossom text-ink",
-  success: "border-transparent bg-success/10 text-success",
-  warning: "border-transparent bg-warning/10 text-warning",
-  danger: "border-transparent bg-danger/10 text-danger",
+  success: "border-success/30 bg-success/15 text-success",
+  warning: "border-warning/30 bg-warning/15 text-warning",
+  danger: "border-danger/30 bg-danger/15 text-danger",
 } as const;
 
 export function Badge({

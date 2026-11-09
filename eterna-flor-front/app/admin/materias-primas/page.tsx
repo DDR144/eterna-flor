@@ -293,7 +293,7 @@ export default function MateriasPrimasPage() {
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-petal">
+              <thead className="bg-petal-deep">
                 <tr>
                   <th
                     scope="col"

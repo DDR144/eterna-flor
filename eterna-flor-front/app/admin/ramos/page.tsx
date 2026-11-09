@@ -455,7 +455,7 @@ export default function RamosPage() {
                   className="h-44 w-full object-cover"
                 />
               ) : (
-                <div className="flex h-44 w-full items-center justify-center bg-petal text-ink-muted">
+                <div className="flex h-44 w-full items-center justify-center bg-petal-deep text-ink-muted">
                   <Icon name="ramos" className="h-8 w-8" />
                 </div>
               )}

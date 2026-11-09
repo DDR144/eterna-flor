@@ -236,7 +236,7 @@ export default function ReportesPage() {
             <CardHeader title="Margen por Tamaño" />
             <CardBody className="overflow-x-auto p-0">
               <table className="w-full text-sm">
-                <thead className="bg-petal">
+                <thead className="bg-petal-deep">
                   <tr>
                     <th scope="col" className="px-4 py-2 text-left text-sm font-medium text-ink-muted">
                       Tamaño
@@ -333,7 +333,7 @@ export default function ReportesPage() {
                 {masVendidos.map((r, i) => (
                   <div key={r.id} className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-petal text-sm font-medium text-ink-muted">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-petal-deep text-sm font-medium text-ink">
                         {i + 1}
                       </span>
                       <div>

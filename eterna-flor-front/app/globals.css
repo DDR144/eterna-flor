@@ -10,10 +10,10 @@
   --color-ink: #3a2747;
   --color-ink-muted: #6e5a7a;
   --color-surface: #ffffff;
-  --color-petal: #fff3f7;
-  --color-petal-deep: #fbe4ee;
-  --color-line: #ecd9e6;
-  --color-line-strong: #dcc4d6;
+  --color-petal: #fbe4ee;
+  --color-petal-deep: #ecc0d5;
+  --color-line: #dfbccf;
+  --color-line-strong: #c99ab4;
 
   /* Acento: único driver de interacción.
      lilac queda para bordes y rellenos decorativos, nunca para texto

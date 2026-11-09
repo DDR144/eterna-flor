@@ -14,7 +14,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`rounded-lush border border-line bg-surface ${className}`}>
+    <div className={`rounded-lush border border-line bg-surface shadow-[0_2px_10px_-4px_rgba(58,39,71,0.10)] ${className}`}>
       {children}
     </div>
   );
