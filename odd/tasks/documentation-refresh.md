@@ -24,14 +24,14 @@ S8. Ningún enlace relativo de los documentos que quedan apunta a un archivo que
 
 ## Tasks
 
-- T1 — `README.md` raíz (S1)
-- T2 — `AGENTS.md` + `eterna-flor-front/AGENTS.md` (S2)
-- T3 — `docs/architecture.md` único y borrado del árbol viejo (S3)
-- T4 — READMEs de los dos paquetes (S4)
-- T5 — `docs/estado-del-proyecto.md` (S5)
-- T6 — `DESIGN.md` + `design/system.md` (S6)
-- T7 — `docs/guia-rapida.md` (S7)
-- T8 — Verificación de enlaces y de afirmaciones (S8)
+- T1 — `README.md` raíz (S1) — `0a4d42a`
+- T2 — `AGENTS.md` + `eterna-flor-front/AGENTS.md` (S2) — `0a4d42a`
+- T3 — `docs/architecture.md` único y borrado del árbol viejo (S3) — `0a4d42a`
+- T4 — READMEs de los dos paquetes (S4) — `39f92b4`
+- T5 — `docs/estado-del-proyecto.md` (S5) — `d416da9`
+- T6 — `DESIGN.md` + `design/system.md` (S6) — `d416da9`
+- T7 — `docs/guia-rapida.md` (S7) — `d416da9`
+- T8 — Verificación de enlaces y de afirmaciones (S8) — rama `docs/refresh-documentation`
 
 ## Log
 
@@ -42,3 +42,5 @@ L2 — Decisión del usuario sobre `docs/architecture/`: "Primero el inventario,
 L3 — Decisión del usuario, textual: "Ejecuta la opción 2 (recomendada)": README raíz nuevo, `AGENTS.md` reescrito, `estado-del-proyecto` refrescado, un solo `docs/architecture.md`, READMEs reales, `DESIGN.md` alineado.
 
 L4 — Evidencia recogida antes de escribir (no supuestos): `prisma/schema.prisma:5-8` = `provider = "postgresql"` + `directUrl`; `eterna-flor-back/package.json` scripts `build/format/lint/test/test:e2e/seed/start/start:dev/start:debug/start:prod`; `eterna-flor-front/package.json` solo `dev/build/start/lint`; `lib/api.ts:16-41` token en `localStorage` + `Authorization: Bearer`; `auth.module.ts:18` `expiresIn: '7d'`; `main.ts:9-12` `app.enableCors()` con `FRONTEND_URL`; `health.controller.ts` documenta el cron de ~10 min y prohíbe consultar la base; `reportes.controller.ts:26` exporta CSV (no ZIP); `pedidos.service.ts:76-157` descuenta y restaura stock de ramos (no de materias primas); `app/globals.css` tokens `petal #fbe4ee`, `petal-deep #ecc0d5`, `line #dfbccf`, `line-strong #c99ab4`; `app/layout.tsx` Fraunces + Nunito.
+
+L5 — Verificación (S8) sobre el árbol final: búsqueda de `MySQL|Railway|TypeORM|tu-dominio|eternally-flor|create-next-app|Geist|on-primary|CorsModule|UploadModule` en todos los `.md` fuera de `node_modules`; solo quedan las menciones históricas de `odd/tasks/`, las del README de AGENTS.md que niega MySQL, la fila del log de commits y el texto de "legacy classes" de `design/system.md` que describe el sistema anterior. Comprobador de enlaces relativos sobre todos los `.md`: cero enlaces rotos. Las afirmaciones de la guía de uso se contrastaron contra el código: filtro por tamaño en `app/catalogo/page.tsx:14-16`, botón de WhatsApp en `:31-33`, alertas de stock en `app/admin/ramos/page.tsx:498-502` y `app/admin/materias-primas/page.tsx:353`, selector de estado en línea en `app/admin/pedidos/page.tsx:384-457`, y borrado restringido a `Pendiente`/`EnPreparacion` en `pedidos.service.ts:147-148`. `PRD_EternaFlor.md` no requirió cambios: no menciona stack.
