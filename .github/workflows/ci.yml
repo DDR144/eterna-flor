@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The scan covers every commit, not only the last one, so the clone
+          # cannot be shallow.
+          fetch-depth: 0
+
+      # The CLI is installed directly instead of through gitleaks-action: the
+      # action asks for GITLEAKS_LICENSE on organization accounts, and this
+      # project must stay verifiable without any secret of its own.
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o /tmp/gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+
+      - name: Scan the full history
+        run: /tmp/gitleaks git --log-opts="--all" -c .gitleaks.toml -v
+
+  backend:
+    name: Backend lint and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: eterna-flor-back
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.9.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: eterna-flor-back/.node-version
+          cache: pnpm
+          cache-dependency-path: eterna-flor-back/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # The Prisma client is generated code: types and query methods only exist
+      # after this step, and lint runs with type-aware rules.
+      - run: pnpm exec prisma generate
+
+      # `pnpm run lint` passes --fix, which would repair the working copy and
+      # still exit 0. In CI the same rules must only report.
+      - run: pnpm exec eslint "{src,apps,libs,test,prisma}/**/*.ts"
+
+      - run: pnpm run test
+
+  frontend:
+    name: Frontend lint and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: eterna-flor-front
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.9.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: eterna-flor-front/.node-version
+          cache: pnpm
+          cache-dependency-path: eterna-flor-front/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      # There is no test runner in this package; the build is its check.
+      - run: pnpm build
