@@ -87,3 +87,7 @@ Corre `pnpm run lint` **antes** de `pnpm run test`: el proyecto no encadena uno 
 ## Desplegar
 
 `git push origin main`. Render y Vercel redespliegan solos a partir de `main`. Las migraciones de base de datos se aplican a mano, nunca en el arranque. El procedimiento completo está en `docs/estado-del-proyecto.md`.
+
+## Licencia
+
+MIT. Puedes leer el código, aprender de él y reutilizarlo citando la autoría. El nombre del negocio, sus datos y sus fotografías no se incluyen en esa cesión. Ver [`LICENSE`](LICENSE).
