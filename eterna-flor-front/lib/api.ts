@@ -11,6 +11,20 @@ interface FetchOptions extends RequestInit {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
 }
 
+/**
+ * Cuerpo que el panel envía al crear o editar un ramo. El formulario arma este
+ * objeto y la API lo recibe como multipart, así que el tipo describe lo que se
+ * escribe, no lo que responde el servidor: por eso las respuestas que nadie
+ * consume quedan como `unknown` en lugar de `any`.
+ */
+interface RamoPayload {
+  nombre: string;
+  tamano: string;
+  precioVenta: number;
+  stock?: number;
+  recetas?: Array<{ materiaPrimaId: number; cantidad: number }>;
+}
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('token');
@@ -115,16 +129,16 @@ export const api = {
       stockActual: number;
       costoUnitario: number;
       stockMinimoAlerta?: number;
-    }) => fetchApi<any>('/materias-primas', { method: 'POST', body: JSON.stringify(data) }),
+    }) => fetchApi<unknown>('/materias-primas', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: number, data: Partial<{
       nombre: string;
       unidad: string;
       stockActual: number;
       costoUnitario: number;
       stockMinimoAlerta: number;
-    }>) => fetchApi<any>(`/materias-primas/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    delete: (id: number) => fetchApi<any>(`/materias-primas/${id}`, { method: 'DELETE' }),
-    getAlertas: () => fetchApi<any[]>('/materias-primas/alertas'),
+    }>) => fetchApi<unknown>(`/materias-primas/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: number) => fetchApi<unknown>(`/materias-primas/${id}`, { method: 'DELETE' }),
+    getAlertas: () => fetchApi<unknown[]>('/materias-primas/alertas'),
   },
 
   ramos: {
@@ -153,8 +167,8 @@ export const api = {
           }>;
         }>
       >('/ramos'),
-    getById: (id: number) => fetchApi<any>(`/ramos/${id}`),
-    create: async (data: any, foto?: File) => {
+    getById: (id: number) => fetchApi<unknown>(`/ramos/${id}`),
+    create: async (data: RamoPayload, foto?: File) => {
       const token = getToken();
       const formData = new FormData();
       formData.append('nombre', data.nombre);
@@ -175,7 +189,7 @@ export const api = {
       if (!response.ok) throw new Error('Error creando ramo');
       return response.json();
     },
-    update: async (id: number, data: any, foto?: File) => {
+    update: async (id: number, data: RamoPayload, foto?: File) => {
       const token = getToken();
       const formData = new FormData();
       if (data.nombre) formData.append('nombre', data.nombre);
@@ -196,22 +210,40 @@ export const api = {
       if (!response.ok) throw new Error('Error actualizando ramo');
       return response.json();
     },
-    delete: (id: number) => fetchApi<any>(`/ramos/${id}`, { method: 'DELETE' }),
-    getAlertas: () => fetchApi<any[]>('/ramos/alertas'),
+    delete: (id: number) => fetchApi<unknown>(`/ramos/${id}`, { method: 'DELETE' }),
+    getAlertas: () => fetchApi<unknown[]>('/ramos/alertas'),
   },
 
   pedidos: {
-    getAll: () => fetchApi<any[]>('/pedidos'),
-    getById: (id: number) => fetchApi<any>(`/pedidos/${id}`),
+    getAll: () =>
+      fetchApi<
+        Array<{
+          id: number;
+          clienteNombre: string;
+          clienteWhatsapp: string;
+          estado: string;
+          metodoPago: string | null;
+          montoTotal: number;
+          fechaEntrega: string | null;
+          createdAt: string;
+          pedidoItems: Array<{
+            id: number;
+            cantidad: number;
+            precioUnitario: number;
+            ramo: { id: number; nombre: string; tamano: string };
+          }>;
+        }>
+      >('/pedidos'),
+    getById: (id: number) => fetchApi<unknown>(`/pedidos/${id}`),
     create: (data: {
       clienteNombre: string;
       clienteWhatsapp: string;
       metodoPago?: string | null;
       fechaEntrega?: string | null;
       items: Array<{ ramoId: number; cantidad: number }>;
-    }) => fetchApi<any>('/pedidos', { method: 'POST', body: JSON.stringify(data) }),
+    }) => fetchApi<unknown>('/pedidos', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: number, data: { estado?: string }) =>
-      fetchApi<any>(`/pedidos/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    delete: (id: number) => fetchApi<any>(`/pedidos/${id}`, { method: 'DELETE' }),
+      fetchApi<unknown>(`/pedidos/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: number) => fetchApi<unknown>(`/pedidos/${id}`, { method: 'DELETE' }),
   },
 };

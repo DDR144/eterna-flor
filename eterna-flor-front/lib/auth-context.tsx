@@ -22,20 +22,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // La comprobación inicial vive dentro del efecto como cadena de promesas:
+  // el estado se fija en las continuaciones, no en el cuerpo del efecto, y el
+  // indicador de cancelación evita escribir sobre un componente desmontado.
   useEffect(() => {
-    checkAuth();
-  }, []);
+    let cancelado = false;
 
-  async function checkAuth() {
-    try {
-      const profile = await api.auth.profile();
-      setUser(profile);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+    api.auth
+      .profile()
+      .then((profile) => {
+        if (!cancelado) setUser(profile);
+      })
+      .catch(() => {
+        if (!cancelado) setUser(null);
+      })
+      .finally(() => {
+        if (!cancelado) setLoading(false);
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   async function login(email: string, password: string) {
     const { user } = await api.auth.login(email, password);
