@@ -1,0 +1,16 @@
+# Secret scan policy for this repository.
+#
+# `gitleaks git --log-opts="--all"` reports exactly one finding in history: the
+# CircleCI badge token in the NestJS starter README that shipped with the
+# scaffold. The upstream template publishes that line verbatim as a placeholder,
+# and the file no longer contains it. It is allowlisted by exact value so that
+# any other `generic-api-key` finding still fails the scan. Do not widen this to
+# a rule-level or path-level allowlist: that would silence real findings in the
+# same file for the rest of history.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public placeholders from third-party boilerplate, never credentials."
+regexes = ['''abc123def456''']
