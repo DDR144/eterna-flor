@@ -147,7 +147,7 @@ Reglas que aplica el backend:
 | Entorno | Frontend | API | Base de datos |
 |---|---|---|---|
 | Local | `localhost:3000` (`pnpm dev`) | `localhost:3001` (`pnpm run start:dev`) | PostgreSQL local |
-| Producción | `eterna-flor.vercel.app` | `eternaflor-api.onrender.com` | Neon, proyecto `icy-cell-68397091`, `aws-us-east-2` |
+| Producción | `eterna-flor.vercel.app` | `eternaflor-api.onrender.com` | Neon, proyecto propio en `aws-us-east-2` |
 
 - **Disparador:** `git push origin main`. Ambas plataformas redespliegan solas.
 - **Migraciones:** se aplican a mano desde local con `prisma migrate deploy`. **No** corren en el arranque; `start:prod` es literalmente `node dist/main`.

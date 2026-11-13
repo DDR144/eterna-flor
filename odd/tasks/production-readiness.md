@@ -147,8 +147,8 @@ No verificado: la subida real de fotos a Cloudinary (falta configurar la cuenta)
 
 | Dato | Valor |
 |---|---|
-| Proyecto | `icy-cell-68397091`, organización personal, región `aws-us-east-2` (Ohio) |
-| Rama | `production` (`br-fragrant-dew-b4r1paz9`), la default |
+| Proyecto | proyecto de Neon (organización personal), región `aws-us-east-2` (Ohio) |
+| Rama | `production`, la default |
 | Base de datos | `eternaflor`, propietaria `eternaflor_owner` |
 | Migración aplicada | `20261008084444_init` |
 | Verificación | `psql` directo contra Neon: `usuarios`, `ramos`, `materias_primas`, `recetas`, `pedidos`, `pedido_items`, `_prisma_migrations`; el historial marca la migración como aplicada |

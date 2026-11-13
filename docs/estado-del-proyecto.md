@@ -1,6 +1,6 @@
 # Estado del proyecto y traspaso
 
-**Última actualización:** 2026-11-09 · lo desplegado es `main` en `70ebf58`. Este mismo documento se actualizó en la rama `docs/refresh-documentation`, aún no fusionada.
+**Última actualización:** 2026-11-09 · lo desplegado es `main` en `70ebf58`.
 
 Este documento existe para que una sesión nueva pueda continuar sin reconstruir el contexto. Si algo de aquí no coincide con el repositorio, **manda el repositorio**: `git log --oneline -10 main`.
 
@@ -12,8 +12,8 @@ Este documento existe para que una sesión nueva pueda continuar sin reconstruir
 |---|---|---|
 | Web (catálogo + panel) | `https://eterna-flor.vercel.app` | Vercel, plan Hobby |
 | API (backend) | `https://eternaflor-api.onrender.com` | Render, web service Free |
-| Base de datos | proyecto `icy-cell-68397091`, región `aws-us-east-2` (Ohio) | Neon, plan Free |
-| Fotos | cloud name `qpzvx7c8` | Cloudinary, plan Free |
+| Base de datos | proyecto de Neon propio, región `aws-us-east-2` (Ohio) | Neon, plan Free |
+| Fotos | cloud name propio del panel de Cloudinary | Cloudinary, plan Free |
 | Dominio | subdominios gratuitos | — |
 
 **Ojo con la dirección:** la correcta lleva guion, `eterna-flor.vercel.app`. `eternaflor.vercel.app` (sin guion) es de otra persona, un sitio brasileño de flores artesanales.
