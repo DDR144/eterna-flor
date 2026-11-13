@@ -1,8 +1,27 @@
 # EternaFlor
 
+[![CI](https://github.com/DDR144/eterna-flor/actions/workflows/ci.yml/badge.svg)](https://github.com/DDR144/eterna-flor/actions/workflows/ci.yml)
+
 Sistema de gestión para un negocio de ramos florales: inventario de materias primas, ramos con receta y costo calculado, pedidos con descuento de stock, reportes de ventas y un catálogo público que se comparte por WhatsApp.
 
 Es un proyecto personal: todo corre en planes gratuitos y el costo mensual de infraestructura es **$0**.
+
+## Capturas
+
+El catálogo público, el enlace que la dueña del negocio comparte por WhatsApp:
+
+<p align="center">
+  <img src="docs/screenshots/catalogo-movil.png" width="340" alt="Catálogo público de ramos en vista móvil">
+</p>
+
+<details>
+<summary>Más capturas: escritorio y acceso al panel</summary>
+
+| Escritorio | Acceso al panel |
+|---|---|
+| ![Catálogo público en escritorio](docs/screenshots/catalogo.png) | ![Pantalla de acceso al panel](docs/screenshots/acceso.png) |
+
+</details>
 
 ## En producción
 
