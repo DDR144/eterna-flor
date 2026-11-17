@@ -143,7 +143,7 @@
 
 ## 7. Modelo de Negocio
 
-- **Monetización:** Herramienta interna para uso familiar, sin costo ni modelo comercial
+- **Monetización:** Herramienta interna para el negocio, sin costo ni modelo comercial
 - **Go-to-market:** Desarrollo directo para un negocio de ramos florales; no requiere estrategia de distribución
 - **Moneda y mercado:** Soles peruanos (PEN), español, Lima, Perú
 
