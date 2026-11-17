@@ -8,18 +8,16 @@ Es un proyecto personal: todo corre en planes gratuitos y el costo mensual de in
 
 ## Capturas
 
-El catálogo público, el enlace que la dueña del negocio comparte por WhatsApp:
+Las capturas se tomaron con datos de demostración (`pnpm run seed:demo`), no con el catálogo real del negocio.
 
-<p align="center">
-  <img src="docs/screenshots/catalogo-movil.png" width="340" alt="Catálogo público de ramos en vista móvil">
-</p>
+![Catálogo público de ramos en escritorio](docs/screenshots/catalogo.png)
 
 <details>
-<summary>Más capturas: escritorio y acceso al panel</summary>
+<summary>Más capturas: móvil y acceso al panel</summary>
 
-| Escritorio | Acceso al panel |
+| Móvil | Acceso al panel |
 |---|---|
-| ![Catálogo público en escritorio](docs/screenshots/catalogo.png) | ![Pantalla de acceso al panel](docs/screenshots/acceso.png) |
+| ![Catálogo público de ramos en vista móvil](docs/screenshots/catalogo-movil.png) | ![Pantalla de acceso al panel](docs/screenshots/acceso.png) |
 
 </details>
 
@@ -62,6 +60,7 @@ pnpm install
 pnpm exec prisma generate
 pnpm exec prisma migrate dev
 pnpm run seed        # opcional: datos de prueba + usuario admin@eternaflor.local / local1234
+pnpm run seed:demo   # opcional: catálogo de demostración presentable (vacía la base local)
 pnpm run start:dev   # http://localhost:3001
 ```
 
