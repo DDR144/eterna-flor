@@ -3,6 +3,7 @@
 **Rama:** `chore/publication-polish`
 **Objetivo:** cerrar los tres pendientes que la auditoría de publicación del 2026-11-20 dejó abiertos: sacar los datos de prueba del catálogo que el README muestra, sacar del repositorio el WhatsApp real de un tercero y arreglar la presentación del repositorio.
 **Contexto:** `main` ya estaba técnicamente limpio (CI en verde, `gitleaks` sin hallazgos sobre toda la historia, MIT, `.env` nunca rastreado), así que esta slice es de contenido, no de seguridad. Publicar la visibilidad sigue siendo decisión del usuario.
+**Tamaño:** 516 líneas autoradas en 9 commits (los PNG no cuentan). La rama `chore/publication-polish` es la entrega; fusionar y desplegar siguen siendo decisiones del usuario.
 
 ## Specs
 
@@ -23,6 +24,7 @@ S4. Presentación del repositorio: descripción y topics en GitHub, y el PRD dej
 - T5 — PRD sin la premisa de negocio familiar (S4) — `36164e6`
 - T6 — Descripción y topics del repositorio en GitHub (S4) — `gh repo edit`, fuera del árbol de git
 - T7 — Este documento
+- T8 — Verificación independiente de la slice y las dos correcciones que encontró (S1) — `b633860`, `b8dc1d6`
 
 ## Log
 
@@ -41,3 +43,7 @@ L6 — Entorno de la captura: esta máquina solo tiene el cliente de PostgreSQL,
 L7 — Verificación de la slice: `pnpm exec eslint "src/**/*.ts" "prisma/**/*.ts" "test/**/*.ts"` → exit 0; `pnpm run test` → 51/51 en 8 suites; `pnpm lint` y `pnpm build` del frontend → 0 errores (3 avisos preexistentes de `no-img-element`); capturas a 1440x1500, 430x1400 y 1440x900, las mismas medidas que las anteriores, tomadas del build de producción para que no aparezca el indicador de desarrollo de Next.
 
 L8 — Consecuencia declarada de T3: al fusionar esta rama, el despliegue automático de Vercel publica el número de ejemplo y el botón real de WhatsApp del catálogo deja de funcionar hasta que se configure el número del negocio. Es exactamente lo que el usuario decidió, y la fusión y el despliegue siguen siendo decisiones suyas.
+
+L9 — Verificación independiente (`gentle-ai-verify`, solo lectura, diff `5b41854..HEAD`): sin bloqueos; S2, S3 y S4 cumplidos. Sonda ejecutada por el verificador: con `DATABASE_URL` apuntando a un host remoto, `pnpm run seed:demo` sale con código 1 y el mensaje de la guardia antes de escribir nada. Dos hallazgos corregidos: `PRD_EternaFlor.md:146` seguía diciendo "Herramienta interna para uso familiar" (residuo de la premisa que la slice había quitado en otras dos líneas) → `b8dc1d6`; y `assertLocalDatabase`, la guardia de la que dependen el seed, el sembrador y la suite e2e, no tenía ningún spec → `b633860`.
+
+L10 — Puertas finales: `pnpm run test` 59/59 en 9 suites (eran 51/51 en 8 antes del spec nuevo), `eslint` con 0 errores en `src`, `prisma` y `test`, y `pnpm lint` + `pnpm build` del frontend en verde. Se descartó el test estructural que proponía el verificador para `prisma/demo.ts` (leer el fuente y comparar índices de cadena): rompe sin que cambie el comportamiento, y el orden de la guardia ya lo prueba la sonda remota.
