@@ -25,7 +25,18 @@ async function getRamos(tamano?: string): Promise<Ramo[]> {
   }
 }
 
-const WHATSAPP_NUMERO = '930190189';
+/**
+ * Número de ejemplo. El WhatsApp del negocio real no vive en el repositorio:
+ * es un dato personal de un tercero y este código se publica con licencia MIT.
+ * Para desplegar el catálogo de un cliente hay que reemplazar esta constante.
+ *
+ * La etiqueta visible se deriva del mismo valor para que no puedan separarse.
+ */
+const WHATSAPP_NUMERO = '51900000000';
+const WHATSAPP_ETIQUETA = WHATSAPP_NUMERO.replace(/^51/, '').replace(
+  /(\d{3})(\d{3})(\d{3})/,
+  '$1 $2 $3',
+);
 const MENSAJE_BASE = 'Hola, me interesa uno de los Ramos';
 
 function whatsappHref(ramo: Ramo): string {
@@ -231,7 +242,7 @@ export default async function CatalogoPage({
               rel="noopener noreferrer"
               className="rounded-soft border border-line-strong bg-surface px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-petal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
-              Escribir al 930 190 189
+              Escribir al {WHATSAPP_ETIQUETA}
             </a>
           </div>
         </Card>
