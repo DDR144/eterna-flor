@@ -10,7 +10,7 @@
 
 **Solución propuesta:** Una aplicación web responsive (funciona igual en celular, tablet y computadora) que permite a la dueña gestionar su inventario de ramos terminados organizados por tamaño, sus materias primas y costos de producción, registrar y dar seguimiento a pedidos, ver reportes de ventas, y compartir un catálogo digital público con sus clientes.
 
-**Propuesta de valor única:** Una herramienta hecha a la medida de un negocio familiar pequeño, sin complicaciones técnicas, accesible desde cualquier dispositivo, con un catálogo bonito que se puede compartir por WhatsApp.
+**Propuesta de valor única:** Una herramienta hecha a la medida de un negocio pequeño de ramos florales, sin complicaciones técnicas, accesible desde cualquier dispositivo, con un catálogo bonito que se puede compartir por WhatsApp.
 
 ---
 
@@ -144,7 +144,7 @@
 ## 7. Modelo de Negocio
 
 - **Monetización:** Herramienta interna para uso familiar, sin costo ni modelo comercial
-- **Go-to-market:** Desarrollo directo para el negocio familiar; no requiere estrategia de distribución
+- **Go-to-market:** Desarrollo directo para un negocio de ramos florales; no requiere estrategia de distribución
 - **Moneda y mercado:** Soles peruanos (PEN), español, Lima, Perú
 
 ---
