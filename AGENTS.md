@@ -29,6 +29,7 @@ pnpm exec prisma migrate dev       # create + apply a migration locally
 pnpm exec prisma migrate deploy    # apply migrations (production, run manually)
 pnpm exec prisma studio            # visual database viewer
 pnpm run seed                      # local test data + admin@eternaflor.local / local1234
+pnpm run seed:demo                 # presentable demo catalogue; wipes the local database
 ```
 
 ### Frontend (from `eterna-flor-front/`)
