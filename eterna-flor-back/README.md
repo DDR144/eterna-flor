@@ -43,6 +43,8 @@ pnpm run seed                  # datos de prueba locales
 
 El seed siembra los cuatro tamaños de ramo, pedidos en los cuatro estados, materias primas por encima y por debajo de su umbral, y el usuario local `admin@eternaflor.local` / `local1234`. Solo borra filas cuyo nombre empieza por `[prueba] `, `Materia prima de prueba: ` o `Cliente de prueba `, así que se puede repetir.
 
+Si lo que quieres es **mirar** la aplicación y no probarla, `pnpm run seed:demo` vacía la base local y siembra un catálogo presentable: cinco ramos visibles con recetas, uno agotado, uno archivado y pedidos en los cuatro estados. Ese es el dataset que usan las capturas del README. También se niega a correr fuera de localhost.
+
 **El seed y los e2e se niegan a correr si `DATABASE_URL` no apunta a `localhost`, `127.0.0.1` o `::1`** (`src/common/local-database.ts`). Ambos borran datos: nunca deben apuntar a la base de producción.
 
 ## Comandos
